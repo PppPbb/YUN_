@@ -1466,6 +1466,24 @@
         align-items: start;
       }
 
+      .detail-embed {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 18px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+        background: rgba(0, 0, 0, 0.03);
+        margin-bottom: 20px;
+      }
+
+      .detail-embed iframe {
+        width: 100%;
+        height: 100%;
+        display: block;
+        border: 0;
+      }
+
       .gallery-img {
         width: 100%;
         height: auto;
@@ -2780,7 +2798,8 @@
               title: "技术探索",
               text: "Mediapipe视觉手势识别；UE+Airsim仿真环境测试手势控制方案的可行性；调研了手势设计的原则和评估方法",
               demoUrl: "Mini_demo_game_for_fun.html",
-              video: "images/project6/video.mp4",
+              embedHtml:
+                '<iframe src=\"https://player.bilibili.com/player.html?isOutside=true&aid=115876690924860&bvid=BV1ik6oBHEK6&cid=35324037817&p=1\" scrolling=\"no\" frameborder=\"0\" allowfullscreen=\"true\" referrerpolicy=\"no-referrer-when-downgrade\"></iframe>',
               images: [
                 "images/project6/1.png",
                 "images/project6/2.png",
@@ -2908,10 +2927,14 @@
           }
 
           // 视频展示
-          if (section.video) {
-             html += '<div class="detail-video" style="margin-bottom: 20px;">';
-             html += `<video controls playsinline src="${section.video}" style="width: 100%; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08); background: rgba(0,0,0,0.03);"></video>`;
-             html += '</div>';
+          if (section.embedHtml) {
+            html += '<div class="detail-embed">';
+            html += section.embedHtml;
+            html += '</div>';
+          } else if (section.video) {
+            html += '<div class="detail-embed">';
+            html += `<video controls playsinline src="${section.video}" style="width: 100%; height: 100%; display: block;"></video>`;
+            html += '</div>';
           }
 
           // 图片画廊
