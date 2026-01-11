@@ -22,6 +22,8 @@
         --radius-lg: 18px;
         --radius-md: 14px;
         --ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+        --anchor-offset: 48px;
+        --anchor-offset-about: 132px;
       }
 
       * {
@@ -503,6 +505,7 @@
 
       #about.section {
         margin-top: 0;
+        scroll-margin-top: var(--anchor-offset-about);
       }
 
       #projects.section {
@@ -2413,6 +2416,11 @@
         { threshold: 0.12 }
       );
       const about = document.getElementById("about");
+      let forceAboutOnUntil = 0;
+      const shouldForceAboutOn = () => performance.now() < forceAboutOnUntil;
+      const forceAboutOn = (ms = 1200) => {
+        forceAboutOnUntil = Math.max(forceAboutOnUntil, performance.now() + ms);
+      };
       document.querySelectorAll("[data-reveal]").forEach((el) => {
         if (about && el === about) return;
         reveal.observe(el);
@@ -2425,12 +2433,27 @@
           const update = () => {
             raf = 0;
             const r = coverSub.getBoundingClientRect();
-            about.classList.toggle("on", r.bottom <= 0);
+            about.classList.toggle("on", shouldForceAboutOn() || r.bottom <= 0);
           };
           const schedule = () => {
             if (raf) return;
             raf = requestAnimationFrame(update);
           };
+          window.addEventListener("hashchange", () => {
+            if (location.hash === "#about") forceAboutOn();
+            schedule();
+          });
+          document.querySelectorAll('a[href="#about"]').forEach((a) => {
+            a.addEventListener(
+              "click",
+              () => {
+                forceAboutOn();
+                schedule();
+              },
+              { passive: true }
+            );
+          });
+          if (location.hash === "#about") forceAboutOn(2000);
           window.addEventListener("scroll", schedule, { passive: true });
           window.addEventListener("resize", schedule, { passive: true });
           schedule();
