@@ -1,0 +1,3234 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>个人网站</title>
+    <style>
+      :root {
+        --bg0: #f3ede7;
+        --bg1: #efe4db;
+        --copper-0: #f6efe8;
+        --copper-1: #ead7c6;
+        --copper-2: #d5b39a;
+        --ink: rgba(22, 18, 16, 0.9);
+        --muted: rgba(22, 18, 16, 0.62);
+        --line: rgba(22, 18, 16, 0.12);
+        --glass: rgba(255, 255, 255, 0.42);
+        --glass-strong: rgba(255, 255, 255, 0.58);
+        --shadow: 0 22px 60px rgba(43, 24, 15, 0.14);
+        --shadow-2: 0 16px 36px rgba(43, 24, 15, 0.12);
+        --radius-xl: 26px;
+        --radius-lg: 18px;
+        --radius-md: 14px;
+        --ease: cubic-bezier(0.2, 0.9, 0.2, 1);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        margin: 0;
+        color: var(--ink);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        position: relative;
+        background: transparent;
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
+
+      #ripple-bg {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      #ripple-bg canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      body.bg-cursor {
+        cursor: none;
+      }
+
+      .cursor-dot {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 24px;
+        height: 24px;
+        border-radius: 999px;
+        pointer-events: none;
+        opacity: 0;
+        transform: translate3d(-100px, -100px, 0);
+        transition: opacity 160ms var(--ease);
+        z-index: 30;
+        border: 1px solid rgba(22, 18, 16, 0.06);
+        filter: saturate(1.35) brightness(1.02);
+        background:
+          radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 60%),
+          linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.64),
+            rgba(213, 179, 154, 0.26),
+            rgba(125, 111, 198, 0.14),
+            rgba(47, 143, 155, 0.12),
+            rgba(239, 228, 219, 0.28),
+            rgba(255, 255, 255, 0.56)
+          );
+        box-shadow: 0 10px 22px rgba(43, 24, 15, 0.08);
+      }
+
+      body.bg-cursor .cursor-dot {
+        opacity: 1;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -30px;
+        pointer-events: none;
+        z-index: 0;
+        background:
+          repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.018) 0 1px, transparent 1px 3px),
+          repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.012) 0 1px, transparent 1px 4px),
+          radial-gradient(1000px 700px at 40% 50%, rgba(255, 255, 255, 0.3), transparent 65%);
+        mix-blend-mode: soft-light;
+        filter: blur(0.25px);
+        opacity: 0.9;
+        transform: translateZ(0);
+      }
+
+      body::after {
+        content: "";
+        position: fixed;
+        inset: -40px;
+        pointer-events: none;
+        z-index: 0;
+        background: radial-gradient(1200px 900px at var(--mx, 50%) var(--my, 40%), rgba(255, 255, 255, 0.4), transparent 62%);
+        opacity: 0.65;
+        filter: blur(22px);
+        transform: translateZ(0);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .wrap {
+        width: min(1180px, calc(100vw - 40px));
+        margin: 0 auto;
+        padding: 0 0 70px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 14px;
+        z-index: 20;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.68), rgba(255, 255, 255, 0.34));
+        backdrop-filter: blur(16px);
+        box-shadow: 0 10px 30px rgba(43, 24, 15, 0.12);
+        opacity: 0;
+        transform: translateY(-10px);
+        pointer-events: none;
+        transition: opacity 380ms var(--ease), transform 380ms var(--ease);
+      }
+
+      .topbar.show {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+      }
+
+      .cover {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
+        padding: 22px 0 8vh;
+        padding-left: clamp(4px, 3vw, 44px);
+      }
+
+      .cover-inner {
+        text-align: left;
+        padding: 34px 0 34px;
+        transform: translateY(14vh);
+      }
+
+      .cover-name {
+        margin: 0;
+        font-size: clamp(88px, 12.4vw, 156px);
+        line-height: 1.02;
+        font-weight: 360;
+        letter-spacing: -1.2px;
+        color: rgba(22, 18, 16, 0.76);
+      }
+
+      .cover-sub {
+        margin: 14px 0 0;
+        color: rgba(22, 18, 16, 0.58);
+        font-size: 20px;
+        line-height: 1.35;
+        letter-spacing: 0.2px;
+      }
+
+      .cover-sub strong {
+        color: rgba(22, 18, 16, 0.82);
+        font-weight: 820;
+      }
+
+      @media (max-width: 720px) {
+        .cover {
+          padding-left: 10px;
+        }
+        .cover-inner {
+          transform: translateY(10vh);
+        }
+        .cover-name {
+          font-size: clamp(64px, 16vw, 116px);
+        }
+      }
+
+      .nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 14px;
+        padding: 10px 14px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 6px 8px;
+        border-radius: 999px;
+      }
+
+      .avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background-image: url('images/myphoto2.png');
+        background-size: cover;
+        background-position: center;
+        position: relative;
+        box-shadow: 0 4px 12px rgba(43, 24, 15, 0.14);
+      }
+
+      .avatar::before {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(213, 179, 154, 0.5));
+        z-index: -1;
+      }
+
+      .brand strong {
+        font-weight: 760;
+        letter-spacing: 0.2px;
+      }
+
+      .brand span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-top: 1px;
+      }
+
+      .navlinks {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+      }
+
+      .chip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(22, 18, 16, 0.12);
+        background: rgba(255, 255, 255, 0.28);
+        backdrop-filter: blur(10px);
+        transition: transform 320ms var(--ease), background 320ms var(--ease), border-color 320ms var(--ease);
+        user-select: none;
+      }
+
+      .chip::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 999px;
+        background: linear-gradient(120deg, rgba(255, 255, 255, 0.6), rgba(213, 179, 154, 0.32), rgba(255, 255, 255, 0.55));
+        opacity: 0;
+        transition: opacity 320ms var(--ease);
+        z-index: -1;
+      }
+
+      .chip:hover {
+        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.44);
+        border-color: rgba(22, 18, 16, 0.18);
+      }
+
+      .chip:hover::before {
+        opacity: 1;
+      }
+
+      .chip small {
+        color: var(--muted);
+        font-weight: 640;
+        letter-spacing: 0.2px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 18px;
+        margin-top: 18px;
+        align-items: stretch;
+      }
+
+      .card {
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.26));
+        backdrop-filter: blur(18px);
+        border-radius: var(--radius-xl);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        position: relative;
+      }
+
+
+
+      .hero-left {
+        padding: 26px 26px 18px;
+      }
+
+      .kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(22, 18, 16, 0.12);
+        background: rgba(255, 255, 255, 0.34);
+        color: rgba(22, 18, 16, 0.7);
+        font-weight: 650;
+        letter-spacing: 0.2px;
+      }
+
+      .kdot {
+        width: 9px;
+        height: 9px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, rgba(213, 179, 154, 0.9), rgba(213, 179, 154, 0.2));
+        box-shadow: 0 0 0 6px rgba(213, 179, 154, 0.14);
+        animation: pulse 2.6s var(--ease) infinite;
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.9;
+        }
+        50% {
+          transform: scale(1.2);
+          opacity: 0.7;
+        }
+      }
+
+      .h1 {
+        font-size: clamp(34px, 4vw, 52px);
+        line-height: 1.05;
+        letter-spacing: -0.8px;
+        margin: 16px 0 10px;
+        font-weight: 850;
+      }
+
+      .subtitle {
+        margin: 0 0 18px;
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.7;
+        max-width: 56ch;
+      }
+
+      .hero-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 14px;
+      }
+
+      .btn {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(22, 18, 16, 0.14);
+        background: rgba(255, 255, 255, 0.5);
+        box-shadow: 0 12px 28px rgba(43, 24, 15, 0.1);
+        transition: transform 320ms var(--ease), background 320ms var(--ease), box-shadow 320ms var(--ease);
+        user-select: none;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(213, 179, 154, 0.55), rgba(255, 255, 255, 0.7));
+        opacity: 0;
+        transition: opacity 320ms var(--ease);
+        z-index: -1;
+      }
+
+      .btn:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.64);
+        box-shadow: 0 18px 40px rgba(43, 24, 15, 0.14);
+      }
+
+      .btn:hover::before {
+        opacity: 1;
+      }
+
+      .btn:active {
+        transform: translateY(-1px) scale(0.99);
+      }
+
+      .btn .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        background: linear-gradient(180deg, rgba(213, 179, 154, 0.95), rgba(213, 179, 154, 0.25));
+        box-shadow: 0 0 0 7px rgba(213, 179, 154, 0.16);
+      }
+
+      .btn.secondary {
+        background: rgba(255, 255, 255, 0.34);
+      }
+
+      .hero-right {
+        padding: 18px;
+        display: grid;
+        gap: 12px;
+      }
+
+      .mini {
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.28));
+        backdrop-filter: blur(16px);
+        box-shadow: var(--shadow-2);
+        padding: 16px 16px;
+        position: relative;
+        overflow: hidden;
+        transform: translateZ(0);
+      }
+
+
+
+      .mini h3 {
+        margin: 0 0 10px;
+        font-size: 14px;
+        letter-spacing: 0.2px;
+        font-weight: 800;
+      }
+
+      .mini p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.65;
+        font-size: 13px;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .stat {
+        border: 1px solid rgba(22, 18, 16, 0.1);
+        background: rgba(255, 255, 255, 0.36);
+        border-radius: 16px;
+        padding: 12px 12px;
+        display: grid;
+        gap: 6px;
+        box-shadow: 0 10px 22px rgba(43, 24, 15, 0.08);
+      }
+
+      .stat strong {
+        font-size: 18px;
+        letter-spacing: -0.2px;
+      }
+
+      .stat span {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 650;
+      }
+
+      .section {
+        margin-top: 18px;
+        padding: 22px;
+      }
+
+      #about.section {
+        margin-top: 0;
+      }
+
+      #projects.section {
+        margin-top: 36px;
+      }
+
+      .about-grid {
+        display: grid;
+        grid-template-columns: 0.85fr 0.7fr 0.5fr;
+        gap: 14px;
+        margin: 10px 0 18px;
+        align-items: center;
+        transform: translateY(-35px);
+      }
+
+      .about-decoration {
+        position: absolute;
+        right: -2%;
+        top: 40%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+        font-weight: 900;
+        font-size: clamp(6rem, 15vw, 12rem);
+        color: rgba(213, 179, 154, 0.25);
+        line-height: 0.9;
+        pointer-events: none;
+        user-select: none;
+        z-index: 0;
+      }
+
+      @media (max-width: 980px) {
+        .about-decoration {
+          display: none;
+        }
+      }
+
+      .about-stack {
+        display: grid;
+        gap: 12px;
+        position: relative;
+        z-index: 2;
+      }
+
+      .about-photo {
+        padding: 0;
+        width: clamp(180px, 26vw, 280px);
+        aspect-ratio: 1 / 1;
+        border-radius: 50%;
+        overflow: visible;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        justify-self: center;
+        align-self: center;
+        position: relative;
+        z-index: 2;
+      }
+
+      .about-photo .photo {
+        width: 100%;
+        height: 100%;
+        background-image: var(--photo);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        filter: saturate(1.02) contrast(1.02);
+        border-radius: 50%;
+        overflow: hidden;
+        box-shadow: var(--shadow-2);
+      }
+
+      .about-photo::before {
+        content: "";
+        position: absolute;
+        inset: -10px;
+        border-radius: 50%;
+        border: 3px dashed rgba(167, 122, 90, 0.9);
+        transform: rotate(-6deg);
+        opacity: 0.95;
+        pointer-events: none;
+      }
+
+      .about-photo::after {
+        content: "";
+        position: absolute;
+        inset: -16px;
+        border-radius: 50%;
+        border: 2px dashed rgba(167, 122, 90, 0.55);
+        transform: rotate(7deg);
+        pointer-events: none;
+      }
+
+      .about-stack .mini {
+        min-height: 160px;
+        padding: 24px 24px 24px 38px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+
+      .about-stack .mini h3 {
+        font-size: 20px;
+        margin-bottom: 12px;
+      }
+
+      .about-stack .mini p {
+        font-size: 16px;
+        line-height: 1.6;
+      }
+
+      @media (max-width: 980px) {
+        .about-photo {
+          width: clamp(210px, 56vw, 320px);
+        }
+      }
+
+      .section h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 850;
+        letter-spacing: 0.2px;
+      }
+
+      .section .desc {
+        margin: 0 0 18px;
+        color: var(--muted);
+        line-height: 1.7;
+        font-size: 14px;
+        max-width: 70ch;
+      }
+
+      .timeline {
+        position: relative;
+        border-radius: var(--radius-xl);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.22));
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow);
+      }
+
+      .vtimeline {
+        position: relative;
+        border-radius: var(--radius-xl);
+        overflow: visible;
+        border: 1px solid rgba(255, 255, 255, 0.74);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.52), rgba(255, 255, 255, 0.22));
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow);
+        padding: 18px 18px 22px;
+      }
+
+      .vt-glass-bg {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .vt-glass-bg::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background:
+          radial-gradient(900px 650px at 18% 22%, rgba(213, 179, 154, 0.46), transparent 60%),
+          radial-gradient(820px 580px at 82% 18%, rgba(125, 111, 198, 0.26), transparent 62%),
+          radial-gradient(980px 700px at 55% 105%, rgba(47, 143, 155, 0.18), transparent 62%),
+          radial-gradient(900px 620px at 50% 40%, rgba(255, 255, 255, 0.36), transparent 58%);
+        filter: blur(28px);
+        opacity: 0.85;
+        transform: none;
+        animation: none;
+      }
+
+      .vt-glass-bg::after {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        background:
+          radial-gradient(820px 620px at 20% 80%, rgba(255, 255, 255, 0.28), transparent 62%),
+          radial-gradient(900px 680px at 88% 74%, rgba(213, 179, 154, 0.24), transparent 62%);
+        filter: blur(34px);
+        opacity: 0.55;
+        mix-blend-mode: soft-light;
+        transform: none;
+        animation: none;
+      }
+
+      @keyframes vtimelineFlowA {
+        0% {
+          transform: translate3d(-6%, -4%, 0) rotate(-6deg) scale(1);
+          opacity: 0.78;
+        }
+        50% {
+          transform: translate3d(2%, -2%, 0) rotate(4deg) scale(1.04);
+          opacity: 0.92;
+        }
+        100% {
+          transform: translate3d(7%, 3%, 0) rotate(10deg) scale(1.06);
+          opacity: 0.82;
+        }
+      }
+
+      @keyframes vtimelineFlowB {
+        0% {
+          transform: translate3d(8%, 4%, 0) rotate(10deg) scale(1.02);
+          opacity: 0.46;
+        }
+        50% {
+          transform: translate3d(-1%, 1%, 0) rotate(-2deg) scale(1.06);
+          opacity: 0.62;
+        }
+        100% {
+          transform: translate3d(-8%, -3%, 0) rotate(-12deg) scale(1.04);
+          opacity: 0.5;
+        }
+      }
+
+      .vtimeline-inner {
+        position: relative;
+        z-index: 1;
+        padding: 14px 0 10px;
+      }
+
+      .vtimeline-inner::before {
+        display: none;
+      }
+
+      .vt-items {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        padding: 120px 0;
+      }
+
+      .vt-item {
+        --accent: #000;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        position: relative;
+        padding-bottom: 80px; /* Space for connector */
+      }
+      
+      .vt-item:last-child {
+        padding-bottom: 0;
+      }
+
+      /* Connector Area: Spans from 25% to 75% width */
+      .vt-connector {
+        position: absolute;
+        bottom: 0;
+        left: 25%;
+        width: 50%;
+        height: 80px;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* Left -> Right Connector (Down-Right-Down) */
+      .vt-item.left .vt-connector::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 50%;
+        height: 50%;
+        border-left: 5px solid var(--accent);
+        border-bottom: 5px solid var(--accent);
+        border-bottom-left-radius: 30px;
+        box-sizing: border-box;
+      }
+
+      .vt-item.left .vt-connector::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 50%;
+        width: 50%;
+        height: 50%;
+        border-right: 5px solid var(--next-accent);
+        border-top: 5px solid var(--next-accent);
+        border-top-right-radius: 30px;
+        margin-top: -5px; /* Overlap border */
+        box-sizing: border-box;
+      }
+
+      /* Right -> Left Connector (Down-Left-Down) */
+      .vt-item.right .vt-connector::before {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 0;
+        width: 50%;
+        height: 50%;
+        border-right: 5px solid var(--accent);
+        border-bottom: 5px solid var(--accent);
+        border-bottom-right-radius: 30px;
+        box-sizing: border-box;
+      }
+
+      .vt-item.right .vt-connector::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 50%;
+        width: 50%;
+        height: 50%;
+        border-left: 5px solid var(--next-accent);
+        border-top: 5px solid var(--next-accent);
+        border-top-left-radius: 30px;
+        margin-top: -5px;
+        box-sizing: border-box;
+      }
+      
+      /* Start/End Lines */
+      .vt-start-line {
+        width: 5px;
+        height: 88px;
+        background: var(--accent);
+        margin: 10px auto 0;
+        border-radius: 999px;
+      }
+      
+      .vt-end-line {
+        width: 5px;
+        height: 88px;
+        background: var(--accent);
+        margin: 0 auto 10px;
+        border-radius: 999px;
+      }
+      
+      /* Start Cap */
+      .vt-startcap {
+        position: absolute;
+        top: 0;
+        left: 25%;
+        transform: translateX(-50%);
+        text-align: center;
+        padding-bottom: 10px;
+        z-index: 2;
+      }
+
+      /* End Cap */
+      .vt-endcap {
+        position: absolute;
+        bottom: 0;
+        left: 75%; /* Depends on last item */
+        transform: translateX(-50%);
+        text-align: center;
+        padding-top: 10px;
+        z-index: 2;
+      }
+
+      .vt-cap-dot {
+        width: 16px;
+        height: 16px;
+        background: var(--accent, #a77a5a);
+        border-radius: 50%;
+        margin: 0 auto 6px;
+        box-shadow: 0 0 0 4px rgba(255,255,255,0.8);
+      }
+
+      /* Card & Meta Positioning */
+      .vt-card-wrapper {
+        display: flex;
+        justify-content: center;
+        position: relative;
+        z-index: 1;
+      }
+      
+      .vt-meta-wrapper {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        padding: 0 30px;
+      }
+
+      /* Left Item Layout */
+      .vt-item.left .vt-card-wrapper {
+        grid-column: 1;
+      }
+      .vt-item.left .vt-meta-wrapper {
+        grid-column: 2;
+        align-items: flex-start;
+        text-align: left;
+      }
+
+      /* Right Item Layout */
+      .vt-item.right .vt-card-wrapper {
+        grid-column: 2;
+      }
+      .vt-item.right .vt-meta-wrapper {
+        grid-column: 1;
+        align-items: flex-end;
+        text-align: right;
+      }
+
+      .vt-card {
+        border: none;
+        background: transparent;
+        padding: 0;
+        cursor: pointer;
+        outline: none;
+      }
+
+      .vt-card .frame {
+        width: min(380px, calc(50vw - 60px));
+        height: 240px;
+        border-radius: 24px;
+        background: linear-gradient(135deg, 
+          color-mix(in srgb, var(--accent) 15%, rgba(255, 255, 255, 0.9)),
+          color-mix(in srgb, var(--accent) 25%, rgba(255, 255, 255, 0.7))
+        );
+        border: 3px solid transparent;
+        background-clip: padding-box;
+        position: relative;
+        box-shadow: 
+          0 20px 50px color-mix(in srgb, var(--accent) 25%, transparent),
+          0 10px 25px rgba(0, 0, 0, 0.08);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+
+      .vt-card .frame::before {
+        content: "";
+        position: absolute;
+        inset: -3px;
+        border-radius: 26px;
+        background: linear-gradient(135deg, 
+          color-mix(in srgb, var(--accent) 60%, white),
+          var(--accent),
+          color-mix(in srgb, var(--accent) 40%, white)
+        );
+        z-index: -1;
+      }
+
+      .vt-card:hover .frame {
+        transform: translateY(-5px);
+        box-shadow: 
+          0 25px 60px color-mix(in srgb, var(--accent) 35%, transparent),
+          0 15px 35px rgba(0, 0, 0, 0.1);
+      }
+
+      .vt-card:focus-visible .frame {
+        outline: 3px solid color-mix(in srgb, var(--accent) 50%, white);
+        outline-offset: 4px;
+      }
+
+      .vt-title {
+        font-size: 18px;
+        margin-bottom: 4px;
+      }
+      
+      .vt-time {
+        font-size: 14px;
+      }
+
+      @media (max-width: 980px) {
+        .vt-item {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          padding-bottom: 60px;
+        }
+        .vt-connector {
+          left: 20px;
+          width: 0;
+          border-left: 4px solid var(--accent);
+          display: block !important;
+        }
+        .vt-connector::before, .vt-connector::after {
+          display: none;
+        }
+        .vt-startcap, .vt-endcap {
+          left: 20px;
+          transform: translateX(-50%);
+        }
+        .vt-startcap { top: 0; }
+        .vt-endcap { bottom: 0; }
+        
+        .vt-card-wrapper {
+          justify-content: flex-start;
+          padding-left: 50px;
+        }
+        .vt-meta-wrapper {
+          padding-left: 50px;
+          align-items: flex-start;
+          text-align: left;
+        }
+        .vt-card .frame {
+          width: calc(100vw - 80px);
+          height: 200px;
+        }
+
+        .vt-card .frame::before {
+          border-radius: 26px;
+        }
+      }
+
+      .timeline-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 16px 18px 10px;
+      }
+
+      .timeline-head strong {
+        font-weight: 850;
+        letter-spacing: 0.2px;
+      }
+
+      .hint {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(22, 18, 16, 0.12);
+        background: rgba(255, 255, 255, 0.34);
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .hint kbd {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 11px;
+        padding: 2px 6px;
+        border-radius: 8px;
+        border: 1px solid rgba(22, 18, 16, 0.12);
+        background: rgba(255, 255, 255, 0.6);
+        color: rgba(22, 18, 16, 0.78);
+      }
+
+      .rail {
+        padding: 8px 14px 18px;
+        display: grid;
+        gap: 14px;
+      }
+
+      .scroller {
+        position: relative;
+        display: flex;
+        gap: 10px;
+        overflow: auto hidden;
+        padding: 10px 8px 16px;
+        scroll-snap-type: x mandatory;
+        scroll-padding: 20px;
+        -webkit-overflow-scrolling: touch;
+        cursor: grab;
+      }
+
+      .scroller.timeline-line::before {
+        content: "";
+        position: absolute;
+        left: 18px;
+        right: 18px;
+        top: 23px;
+        height: 2px;
+        background: linear-gradient(90deg, #a77a5a, #7d6fc6, #2f8f9b, #d06a86, #c38b2e, #3b78d8);
+        opacity: 0.85;
+        pointer-events: none;
+      }
+
+      .scroller.dragging {
+        cursor: grabbing;
+        scroll-snap-type: none;
+      }
+
+      .scroller::-webkit-scrollbar {
+        height: 10px;
+      }
+
+      .scroller::-webkit-scrollbar-thumb {
+        background: rgba(22, 18, 16, 0.14);
+        border-radius: 999px;
+        border: 3px solid rgba(255, 255, 255, 0.35);
+      }
+
+      .scroller::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .titem {
+        --accent: rgba(213, 179, 154, 0.95);
+        --img: linear-gradient(135deg, rgba(255, 255, 255, 0.7), rgba(213, 179, 154, 0.3));
+        scroll-snap-align: center;
+        flex: 0 0 220px;
+        display: grid;
+        gap: 10px;
+        justify-items: center;
+        align-content: start;
+        padding: 18px 10px 14px;
+        border: 0;
+        border-radius: 22px;
+        background: transparent;
+        color: inherit;
+        text-align: center;
+        cursor: pointer;
+        user-select: none;
+        transform: translateZ(0) scale(0.86);
+        opacity: 0.75;
+        transition: transform 520ms var(--ease), opacity 520ms var(--ease), flex-basis 520ms var(--ease);
+      }
+
+      .titem.active {
+        flex-basis: min(560px, calc(100vw - 120px));
+        transform: translateZ(0) scale(1);
+        opacity: 1;
+      }
+
+      .titem:focus-visible {
+        outline: 2px solid rgba(22, 18, 16, 0.28);
+        outline-offset: 4px;
+      }
+
+      .node {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        background: var(--accent);
+        box-shadow: 0 0 0 8px color-mix(in srgb, var(--accent) 24%, transparent);
+        border: 1px solid rgba(255, 255, 255, 0.85);
+      }
+
+      .frame {
+        width: 200px;
+        height: 118px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.72);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.22));
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow-2);
+        overflow: hidden;
+        position: relative;
+        transition: width 520ms var(--ease), height 520ms var(--ease), box-shadow 520ms var(--ease), border-color 520ms var(--ease);
+      }
+
+      .titem.active .frame {
+        width: min(540px, calc(100vw - 140px));
+        height: 250px;
+        border-color: color-mix(in srgb, var(--accent) 30%, rgba(255, 255, 255, 0.72));
+        box-shadow: 0 26px 70px rgba(43, 24, 15, 0.18);
+      }
+
+      .img {
+        width: 100%;
+        height: 100%;
+        background: var(--img);
+        background-size: cover;
+        background-position: center;
+        transform: scale(1.02);
+        transition: transform 520ms var(--ease), filter 520ms var(--ease);
+        filter: saturate(1.05) contrast(1.02);
+      }
+
+      .titem.active .frame:hover .img {
+        transform: scale(1.045);
+        filter: saturate(1.12) contrast(1.05);
+      }
+
+      /* 项目卡片图片样式 */
+      .vt-card .img {
+        width: 100%;
+        height: 100%;
+        background-color: color-mix(in srgb, var(--accent) 10%, white);
+        background-image: var(--project-img, none);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
+        transition: transform 0.4s ease, filter 0.4s ease;
+      }
+
+      /* 图片占位符 - 当没有图片时显示 */
+      .vt-card .img::before {
+        content: "项目图片";
+        position: absolute;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 14px;
+        font-weight: 600;
+        color: color-mix(in srgb, var(--accent) 60%, rgba(0, 0, 0, 0.4));
+        letter-spacing: 2px;
+        opacity: 0.6;
+        z-index: 1;
+      }
+
+      /* 当有真实图片时隐藏占位符文字 */
+      .vt-card .img.has-image::before {
+        display: none;
+      }
+
+      /* 项目卡片悬停时的图片效果 */
+      .vt-card:hover .img {
+        transform: scale(1.08);
+        filter: saturate(1.15) brightness(1.05);
+      }
+
+      .caption {
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        padding: 10px 12px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.76);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.34));
+        backdrop-filter: blur(18px);
+        box-shadow: 0 14px 34px rgba(43, 24, 15, 0.14);
+        color: rgba(22, 18, 16, 0.74);
+        font-size: 12px;
+        line-height: 1.45;
+        opacity: 0;
+        transform: translateY(6px);
+        transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+        pointer-events: none;
+      }
+
+      .titem.active .frame:hover .caption {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      .vt-card:hover .caption,
+      .vt-card:focus-visible .caption {
+        opacity: 1;
+        transform: translateY(0);
+      }
+      
+      .tname {
+        font-weight: 880;
+        letter-spacing: -0.1px;
+        font-size: 13px;
+        color: rgba(22, 18, 16, 0.84);
+        max-width: min(520px, calc(100vw - 140px));
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .titem.active .tname {
+        color: color-mix(in srgb, var(--accent) 72%, rgba(22, 18, 16, 0.84));
+      }
+
+      .titem:not(.active) .tname {
+        max-width: 200px;
+      }
+
+      /* 全屏覆盖式详情页 */
+      .fullscreen-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        background: var(--bg0);
+        opacity: 0;
+        pointer-events: none;
+        transform: translateY(20px);
+        transition: opacity 400ms var(--ease), transform 400ms var(--ease);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .fullscreen-overlay::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        pointer-events: none;
+        background:
+          radial-gradient(900px 700px at 16% 10%, color-mix(in srgb, var(--accent) 25%, transparent), transparent 60%),
+          radial-gradient(900px 650px at 86% 24%, color-mix(in srgb, var(--accent) 20%, transparent), transparent 58%),
+          radial-gradient(1100px 800px at 55% 92%, rgba(235, 215, 199, 0.55), transparent 62%);
+        z-index: 0;
+      }
+
+      .fullscreen-overlay.show {
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
+      }
+
+      .back-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        top: 18px;
+        left: 18px;
+        z-index: 20;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        border: 1px solid rgba(22, 18, 16, 0.12);
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(18px);
+        cursor: pointer;
+        transition: transform 260ms var(--ease), background 260ms var(--ease), box-shadow 260ms var(--ease);
+        flex-shrink: 0;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.14);
+      }
+
+      .back-btn:hover {
+        transform: translateX(-3px);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 16px 42px rgba(0, 0, 0, 0.16);
+      }
+
+      .back-btn svg {
+        width: 26px;
+        height: 26px;
+        stroke: var(--ink);
+        stroke-width: 2;
+        fill: none;
+      }
+
+      /* 可滚动内容区域 */
+      .overlay-content {
+        flex: 1;
+        overflow-y: auto;
+        overflow-x: hidden;
+        position: relative;
+        z-index: 1;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(22, 18, 16, 0.15) transparent;
+      }
+
+      .overlay-content::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .overlay-content::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .overlay-content::-webkit-scrollbar-thumb {
+        background: rgba(22, 18, 16, 0.12);
+        border-radius: 999px;
+      }
+
+      .overlay-content::-webkit-scrollbar-thumb:hover {
+        background: rgba(22, 18, 16, 0.2);
+      }
+
+      .overlay-inner {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 30px 24px 60px;
+      }
+
+      /* 主图区域 */
+      .detail-hero {
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        border-radius: 24px;
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+        background-size: cover;
+        background-position: center;
+        box-shadow: 0 20px 60px color-mix(in srgb, var(--accent) 30%, rgba(0, 0, 0, 0.15));
+        margin-bottom: 30px;
+      }
+
+      /* 项目信息区 */
+      .detail-info {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr;
+        gap: 30px;
+        margin-bottom: 40px;
+      }
+
+      .detail-description h2 {
+        font-size: 28px;
+        font-weight: 900;
+        letter-spacing: -0.5px;
+        margin: 0 0 16px 0;
+        color: var(--ink);
+      }
+
+      .detail-description p {
+        color: var(--muted);
+        font-size: 15px;
+        line-height: 1.9;
+        margin: 0;
+      }
+
+      .detail-meta {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .meta-card {
+        padding: 16px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.3));
+        backdrop-filter: blur(16px);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+      }
+
+      .meta-card strong {
+        display: block;
+        font-size: 12px;
+        font-weight: 700;
+        color: color-mix(in srgb, var(--accent) 70%, var(--ink));
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .meta-card span {
+        color: var(--ink);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .meta-pair + .meta-pair {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid rgba(22, 18, 16, 0.08);
+      }
+
+      /* 图片画廊区 */
+      .detail-section {
+        margin-bottom: 40px;
+      }
+
+      .detail-section h3 {
+        font-size: 18px;
+        font-weight: 850;
+        margin: 0 0 20px 0;
+        color: var(--ink);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .detail-section h3::before {
+        content: "";
+        width: 4px;
+        height: 20px;
+        border-radius: 2px;
+        background: linear-gradient(180deg, var(--accent), color-mix(in srgb, var(--accent) 50%, transparent));
+      }
+
+      .detail-gallery {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 16px;
+        align-items: start;
+      }
+
+      .gallery-img {
+        width: 100%;
+        height: auto;
+        display: block;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background-color: rgba(0, 0, 0, 0.03);
+        box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+        transition: transform 300ms var(--ease), box-shadow 300ms var(--ease);
+        position: relative;
+      }
+
+      .gallery-img:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 18px 50px rgba(0, 0, 0, 0.12);
+      }
+
+      .gallery-img.placeholder::before {
+        content: "添加图片";
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 13px;
+        color: var(--muted);
+        opacity: 0.4;
+      }
+
+      /* 全宽大图 */
+      .gallery-img.full {
+        grid-column: span 2;
+        aspect-ratio: 21 / 9;
+      }
+
+      /* 详细文字描述 */
+      .detail-text-block {
+        padding: 24px;
+        border-radius: 20px;
+        border: 1px solid rgba(255, 255, 255, 0.7);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0.25));
+        backdrop-filter: blur(16px);
+        margin-bottom: 20px;
+      }
+
+      .detail-text-block h4 {
+        font-size: 15px;
+        font-weight: 800;
+        margin: 0 0 10px 0;
+        color: var(--ink);
+      }
+
+      .detail-text-block p {
+        color: var(--muted);
+        font-size: 14px;
+        line-height: 1.85;
+        margin: 0;
+      }
+
+      @media (max-width: 768px) {
+        .overlay-inner {
+          padding: 20px 16px 40px;
+        }
+        .detail-info {
+          grid-template-columns: 1fr;
+          gap: 20px;
+        }
+        .detail-gallery {
+          grid-template-columns: 1fr;
+        }
+        .gallery-img.full {
+          grid-column: span 1;
+        }
+        .detail-hero {
+          aspect-ratio: 4 / 3;
+          border-radius: 18px;
+        }
+        .detail-description h2 {
+          font-size: 22px;
+        }
+        .back-btn {
+          top: 12px;
+          left: 12px;
+          width: 52px;
+          height: 52px;
+        }
+      }
+
+      @media (max-width: 980px) {
+        .about-grid {
+          grid-template-columns: 1fr;
+        }
+        .modal-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
+
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+        margin-top: 12px;
+        align-items: start;
+      }
+
+      .dcard .body {
+        color: var(--muted);
+        line-height: 1.8;
+        font-size: 13px;
+      }
+
+      .list {
+        display: grid;
+        gap: 10px;
+      }
+
+      .item {
+        border-radius: 16px;
+        border: 1px solid rgba(22, 18, 16, 0.1);
+        background: rgba(255, 255, 255, 0.42);
+        padding: 12px 12px;
+        box-shadow: 0 12px 26px rgba(43, 24, 15, 0.08);
+      }
+
+      .item strong {
+        display: block;
+        font-size: 12px;
+        letter-spacing: 0.2px;
+      }
+
+      .item span {
+        display: block;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .skills {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 10px;
+      }
+
+      .skill {
+        grid-column: span 6;
+        border-radius: var(--radius-lg);
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        background: rgba(255, 255, 255, 0.34);
+        backdrop-filter: blur(16px);
+        box-shadow: var(--shadow-2);
+        padding: 14px 14px;
+        display: grid;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .skill header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+      }
+
+      .skill strong {
+        font-weight: 860;
+        letter-spacing: 0.15px;
+      }
+
+      .skill small {
+        color: var(--muted);
+        font-weight: 740;
+      }
+
+      .bar {
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(22, 18, 16, 0.08);
+        overflow: hidden;
+        border: 1px solid rgba(22, 18, 16, 0.08);
+      }
+
+      .fill {
+        height: 100%;
+        width: 0%;
+        border-radius: 999px;
+        background: linear-gradient(90deg, rgba(213, 179, 154, 0.95), rgba(235, 215, 199, 0.95));
+        box-shadow: 0 10px 26px rgba(213, 179, 154, 0.4);
+        transition: width 1100ms var(--ease);
+      }
+
+      .contact {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .contact .box {
+        border-radius: var(--radius-xl);
+        border: 1px solid rgba(255, 255, 255, 0.78);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.62), rgba(255, 255, 255, 0.24));
+        backdrop-filter: blur(18px);
+        box-shadow: var(--shadow);
+        padding: 16px 16px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      /* Spotlight Effect */
+      [data-spotlight]::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: radial-gradient(
+          var(--spotlight-size, 600px) circle at var(--cx, 50%) var(--cy, 50%),
+          rgba(255, 255, 255, 0.45),
+          transparent 40%
+        );
+        opacity: 0;
+        transition: opacity 300ms var(--ease);
+        z-index: 2;
+        mix-blend-mode: overlay;
+      }
+
+      [data-spotlight]:hover::after {
+        opacity: 1;
+      }
+
+      .vtimeline[data-spotlight] {
+        --spotlight-size: 400px;
+      }
+
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .contact-bottom {
+        display: flex;
+        justify-content: center;
+        margin-top: 18px;
+      }
+
+      .contact-bottom .btn {
+        width: min(520px, 100%);
+        justify-content: center;
+      }
+
+      .field {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+      }
+
+      .field span {
+        color: var(--muted);
+        font-weight: 740;
+        font-size: 12px;
+      }
+
+      .field strong {
+        font-weight: 860;
+        letter-spacing: 0.2px;
+      }
+
+      .copy {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 999px;
+        border: 1px solid rgba(22, 18, 16, 0.14);
+        padding: 9px 12px;
+        background: rgba(255, 255, 255, 0.34);
+        box-shadow: 0 12px 28px rgba(43, 24, 15, 0.1);
+        font-weight: 820;
+        transition: transform 320ms var(--ease), background 320ms var(--ease), box-shadow 320ms var(--ease);
+        user-select: none;
+        cursor: pointer;
+      }
+
+      .copy::before {
+        content: "";
+        position: absolute;
+        inset: -1px;
+        border-radius: 999px;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(213, 179, 154, 0.55), rgba(255, 255, 255, 0.7));
+        opacity: 0;
+        transition: opacity 320ms var(--ease);
+        z-index: -1;
+      }
+
+      .copy:hover {
+        transform: translateY(-2px);
+        background: rgba(255, 255, 255, 0.64);
+        box-shadow: 0 18px 40px rgba(43, 24, 15, 0.14);
+      }
+
+      .copy:hover::before {
+        opacity: 1;
+      }
+
+      .copy:active {
+        transform: translateY(-1px) scale(0.99);
+      }
+
+      .copy:focus-visible {
+        outline: none;
+        box-shadow:
+          0 0 0 4px color-mix(in srgb, var(--accent) 22%, transparent),
+          0 18px 40px rgba(43, 24, 15, 0.14);
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 20px;
+        transform: translate(-50%, 14px);
+        padding: 12px 14px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.82);
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(18px);
+        box-shadow: 0 16px 42px rgba(43, 24, 15, 0.18);
+        color: rgba(22, 18, 16, 0.82);
+        font-weight: 780;
+        letter-spacing: 0.2px;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 260ms var(--ease), transform 260ms var(--ease);
+        z-index: 50;
+      }
+
+      .toast.show {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(10px);
+        filter: blur(2px);
+        transition: opacity 800ms var(--ease), transform 800ms var(--ease), filter 800ms var(--ease);
+      }
+
+      .reveal.on {
+        opacity: 1;
+        transform: translateY(0);
+        filter: blur(0);
+      }
+
+      @media (max-width: 980px) {
+        .hero {
+          grid-template-columns: 1fr;
+        }
+        .contact {
+          grid-template-columns: 1fr;
+        }
+        .grid2 {
+          grid-template-columns: 1fr;
+        }
+        .skill {
+          grid-column: span 12;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          scroll-behavior: auto !important;
+          animation: none !important;
+          transition: none !important;
+        }
+        .reveal {
+          opacity: 1 !important;
+          transform: none !important;
+          filter: none !important;
+        }
+      }
+      #about.reveal {
+        transition: none;
+        opacity: 1;
+        transform: none;
+        filter: none;
+      }
+
+      #about {
+        transition: 
+          opacity 0.6s ease,
+          transform 1.4s cubic-bezier(0.34, 1.56, 0.64, 1),
+          border-radius 1.4s ease,
+          background 1.4s ease,
+          box-shadow 1.4s ease;
+        transform-origin: center bottom;
+      }
+
+      #about:not(.on) {
+        opacity: 0;
+        transform: translateY(120px) scale(0.2);
+        border-radius: 50%;
+        background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.95), rgba(235, 215, 199, 0.8) 60%, rgba(213, 179, 154, 0.4) 100%);
+        box-shadow: 
+          0 0 0 10px rgba(255, 255, 255, 0.3),
+          0 0 80px 40px rgba(213, 179, 154, 0.6),
+          inset -10px -20px 30px rgba(213, 179, 154, 0.3);
+      }
+      
+      #about.on {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+        border-radius: var(--radius-xl);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.26));
+        box-shadow: var(--shadow);
+      }
+
+      #about {
+        --about-p: 0;
+        --about-x: 0px;
+        --about-y: 0px;
+      }
+
+      #about > * {
+        position: relative;
+        z-index: 1;
+      }
+
+      #about::after {
+        content: "";
+        position: absolute;
+        inset: -2px;
+        border-radius: inherit;
+        pointer-events: none;
+        background:
+          radial-gradient(760px 520px at calc(18% + var(--about-x)) calc(28% + var(--about-y)), rgba(213, 179, 154, 0.42), transparent 62%),
+          radial-gradient(820px 560px at calc(86% - var(--about-x)) calc(18% + var(--about-y)), rgba(125, 111, 198, 0.22), transparent 60%),
+          radial-gradient(900px 600px at 60% 110%, rgba(47, 143, 155, 0.18), transparent 60%);
+        opacity: calc(0.12 + var(--about-p) * 0.55);
+        transform: translate3d(0, calc((1 - var(--about-p)) * 18px), 0);
+        filter: saturate(1.05);
+      }
+
+      #about::before {
+        content: "";
+        position: absolute;
+        inset: -40%;
+        pointer-events: none;
+        background: linear-gradient(120deg, transparent 35%, rgba(255, 255, 255, 0.85) 50%, transparent 65%);
+        opacity: 0;
+        transform: translateX(-70%) rotate(8deg);
+        mix-blend-mode: overlay;
+      }
+
+      #about.on::before {
+        animation: aboutSheen 1.4s var(--ease) 0.08s both;
+      }
+
+      @keyframes aboutSheen {
+        0% {
+          opacity: 0;
+          transform: translateX(-70%) rotate(8deg);
+        }
+        30% {
+          opacity: 0.75;
+        }
+        100% {
+          opacity: 0;
+          transform: translateX(70%) rotate(8deg);
+        }
+      }
+
+      #about h2,
+      #about > .desc,
+      #about .about-grid {
+        will-change: transform, opacity;
+        transition: opacity 700ms var(--ease), transform 900ms var(--ease);
+        transition-delay: 0ms;
+      }
+
+      #about:not(.on) h2 {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      #about:not(.on) > .desc {
+        opacity: 0;
+        transform: translateY(18px);
+      }
+
+      #about:not(.on) .about-grid {
+        opacity: 0;
+        transform: translateY(22px);
+      }
+
+      #about.on h2,
+      #about.on > .desc,
+      #about.on .about-grid {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      #about.on h2 {
+        transition-delay: 80ms;
+      }
+
+      #about.on > .desc {
+        transition-delay: 140ms;
+      }
+
+      #about.on .about-grid {
+        transition-delay: 220ms;
+      }
+
+      #about .mini {
+        will-change: transform, opacity;
+        transition: opacity 700ms var(--ease), transform 900ms var(--ease);
+        transition-delay: 0ms;
+      }
+
+      #about:not(.on) .mini {
+        opacity: 0;
+        transform: translateY(22px) scale(0.96);
+      }
+
+      #about.on .mini {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      #about.on .about-grid > .mini {
+        transition-delay: 280ms;
+      }
+
+      #about.on .about-stack .mini:nth-child(1) {
+        transition-delay: 360ms;
+      }
+
+      #about.on .about-stack .mini:nth-child(2) {
+        transition-delay: 440ms;
+      }
+
+    </style>
+  </head>
+  <body>
+    <div id="ripple-bg" aria-hidden="true"></div>
+    <div class="wrap">
+      <header class="topbar" data-topbar>
+        <nav class="nav">
+          <a class="brand" href="#top">
+            <div class="avatar" aria-hidden="true"></div>
+            <div>
+              <strong>Yun</strong>
+              <span>设计 / 交互 / 前端 · Student Portfolio</span>
+            </div>
+          </a>
+          <div class="navlinks">
+            <a class="chip" href="#about"><small>简介</small></a>
+            <a class="chip" href="#projects"><small>项目</small></a>
+            <a class="chip" href="#contact"><small>联系</small></a>
+          </div>
+        </nav>
+      </header>
+
+      <section class="cover" id="top">
+        <div class="cover-inner">
+          <p class="cover-sub">你好，我是</p>
+          <h1 class="cover-name">YUN</h1>
+        </div>
+      </section>
+
+      <section class="card section reveal" id="about" data-reveal>
+        <h2>丁艺沄</h2>
+        <p class="desc">
+          浙江大学 计算机科学与技术学院 工业设计专业
+        </p>
+        <div class="about-grid">
+          <div class="mini about-photo" data-spotlight>
+            <div class="photo" style="--photo: url('images/myphoto.png');" aria-hidden="true"></div>
+          </div>
+          <div class="about-stack">
+            <div class="mini" data-spotlight>
+              <h3>我是谁</h3>
+              <p>一个大三学生</p>
+              <p>致力于创造有温度的设计</p>
+              <p>喜欢游泳、音乐剧</p>
+            </div>
+            <div class="mini" data-spotlight>
+              <h3>目前正在做</h3>
+              <p>计算机图形学大作业 (＠_＠;)</p>
+              <p>“树语”——让自然开口说话的交互装置</p>
+              <p>复习考试 x    制作网页√</p>
+            </div>
+          </div>
+          <div class="about-decoration" aria-hidden="true">
+            <span>关</span>
+            <span>于</span>
+            <span>我</span>
+          </div>
+        </div>
+
+      </section>
+
+      <section class="section reveal" id="projects" data-reveal>
+        <h2> </h2>
+        <h2>项目经历</h2>
+        <p class="desc">按时间顺序整理的主要项目，欢迎参观我的成长历程：</p>
+
+        <div class="vtimeline" data-spotlight aria-label="项目时间轴">
+          <div class="vt-glass-bg" aria-hidden="true"></div>
+          <div class="vtimeline-inner">
+            <div class="vt-startcap" aria-hidden="true" style="--accent: #a77a5a;">
+              <div class="vt-cap-dot"></div>
+              <div class="vt-cap-text">Start</div>
+              <div class="vt-start-line"></div>
+            </div>
+
+            <div class="vt-items">
+              <div class="vt-item left" style="--accent:#a77a5a; --next-accent:#7d6fc6;">
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p1"
+                    style="--accent:#a77a5a;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project1.png');" aria-hidden="true"></div>
+                      <div class="caption">移动的快闪店？</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">四方行舟———逆水寒水上快闪店</div>
+                  <div class="vt-time">2025.4-2025.6</div>
+                </div>
+                <div class="vt-connector"></div>
+              </div>
+
+              <div class="vt-item right" style="--accent:#7d6fc6; --next-accent:#ff9f43;">
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">Toothtickler———儿童龋齿检测器</div>
+                  <div class="vt-time">2025.6</div>
+                </div>
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p2"
+                    style="--accent:#7d6fc6;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project2.png');" aria-hidden="true"></div>
+                      <div class="caption">缺牙也可以检测！</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-connector"></div>
+              </div>
+
+              <div class="vt-item left" style="--accent:#ff9f43; --next-accent:#d06a86;">
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p3"
+                    style="--accent:#ff9f43;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project3.png');" aria-hidden="true"></div>
+                      <div class="caption">实际场景的实现成本降低与体验优化</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">户外移动卫生间节水装置</div>
+                  <div class="vt-time">2025.6-2025.7</div>
+                </div>
+                <div class="vt-connector"></div>
+              </div>
+
+              <div class="vt-item right" style="--accent:#d06a86; --next-accent:#c38b2e;">
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">吾痛———帮助儿童表达疼痛</div>
+                  <div class="vt-time">2025.6-2025.7</div>
+                </div>
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p4"
+                    style="--accent:#d06a86;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project4.png');" aria-hidden="true"></div>
+                      <div class="caption">疼痛可视化</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-connector"></div>
+              </div>
+
+              <div class="vt-item left" style="--accent:#c38b2e; --next-accent:#3b78d8;">
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p5"
+                    style="--accent:#c38b2e;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project5.png');" aria-hidden="true"></div>
+                      <div class="caption">18-35岁焦虑疗愈</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">MindNest———心灵巢</div>
+                  <div class="vt-time">2025.11-2025.12</div>
+                </div>
+                <div class="vt-connector"></div>
+              </div>
+
+              <div class="vt-item right" style="--accent:#3b78d8; --next-accent:#3b78d8;">
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">无人机集群手势控制</div>
+                  <div class="vt-time">2025.10-2026.1</div>
+                </div>
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p6"
+                    style="--accent:#3b78d8;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project6.png');" aria-hidden="true"></div>
+                      <div class="caption">手势交互设计与验证</div>
+                    </div>
+                  </button>
+                </div>
+                <!-- Last item connector logic handled by CSS or none -->
+              </div>
+            </div>
+
+            <div class="vt-endcap" aria-hidden="true" style="--accent: #3b78d8;">
+              <div class="vt-end-line"></div>
+              <div class="vt-cap-dot"></div>
+              <div class="vt-cap-text">And more</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section reveal" id="contact" data-reveal>
+        <h2>联系方式</h2>
+        <p class="desc">欢迎交流(｡•̀ᴗ-)✧</p>
+        <div class="contact">
+          <div class="box" data-spotlight>
+            <div class="field">
+              <div>
+                <span>Email</span>
+                <strong id="emailText">ygyxzhhh@163.com</strong>
+              </div>
+              <button class="copy" type="button" data-copy="#emailText">复制</button>
+            </div>
+          </div>
+          <div class="box" data-spotlight>
+            <div class="field">
+              <div>
+                <span>电话</span>
+                <strong id="wxText">+86 17321080834</strong>
+              </div>
+              <button class="copy" type="button" data-copy="#wxText">复制</button>
+            </div>
+          </div>
+        </div>
+        <div class="contact-bottom">
+          <a class="btn secondary" href="#projects"><span class="dot" aria-hidden="true"></span>回到项目</a>
+        </div>
+      </section>
+    </div>
+
+    <!-- 全屏覆盖式详情页 -->
+    <div class="fullscreen-overlay" id="projectOverlay" aria-hidden="true">
+      <button class="back-btn" id="backBtn" type="button" aria-label="返回">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M19 12H5M12 19l-7-7 7-7" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="overlay-content">
+        <div class="overlay-inner" id="overlayInner">
+          <!-- 内容由 JavaScript 动态生成 -->
+        </div>
+      </div>
+    </div>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">已复制</div>
+
+    <script type="module">
+      const setVars = (x, y) => {
+        document.documentElement.style.setProperty("--mx", `${x * 100}%`);
+        document.documentElement.style.setProperty("--my", `${y * 100}%`);
+        document.documentElement.style.setProperty("--mx2", `${x * 100}%`);
+        document.documentElement.style.setProperty("--my2", `${y * 100}%`);
+      };
+
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      const pointer = { x: 0.5, y: 0.4, tx: 0.5, ty: 0.4 };
+      const tickPointer = () => {
+        pointer.x = lerp(pointer.x, pointer.tx, 0.085);
+        pointer.y = lerp(pointer.y, pointer.ty, 0.085);
+        setVars(pointer.x, pointer.y);
+        requestAnimationFrame(tickPointer);
+      };
+      requestAnimationFrame(tickPointer);
+
+      const cursorDot = document.createElement("div");
+      cursorDot.className = "cursor-dot";
+      cursorDot.setAttribute("aria-hidden", "true");
+      document.body.appendChild(cursorDot);
+
+      const isBackgroundTarget = (t) => {
+        if (!(t instanceof Element)) return true;
+        return !t.closest(".card, .topbar, .fullscreen-overlay");
+      };
+
+      const isInteractiveTarget = (t) => {
+        if (!(t instanceof Element)) return false;
+        return Boolean(
+          t.closest(
+            'a[href], button, input, textarea, select, summary, label, [role="button"], [data-project], [data-copy]'
+          )
+        );
+      };
+
+      window.addEventListener(
+        "pointermove",
+        (e) => {
+          const x = e.clientX / window.innerWidth;
+          const y = e.clientY / window.innerHeight;
+          pointer.tx = x;
+          pointer.ty = y;
+
+          const showCustomCursor = isBackgroundTarget(e.target) && !isInteractiveTarget(e.target);
+          document.body.classList.toggle("bg-cursor", showCustomCursor);
+          if (showCustomCursor) {
+            cursorDot.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+          }
+
+          if (reduceMotion) return;
+        },
+        { passive: true }
+      );
+
+      window.addEventListener(
+        "pointerleave",
+        () => {
+          document.body.classList.remove("bg-cursor");
+        },
+        { passive: true }
+      );
+
+      const topbar = document.querySelector("[data-topbar]");
+      const updateTopbar = () => {
+        if (!topbar) return;
+        const show = window.scrollY > Math.max(24, window.innerHeight * 0.12);
+        topbar.classList.toggle("show", show);
+      };
+      window.addEventListener("scroll", updateTopbar, { passive: true });
+      updateTopbar();
+
+      const onSpotlight = (el, e) => {
+        const r = el.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width;
+        const y = (e.clientY - r.top) / r.height;
+        el.style.setProperty("--cx", `${x * 100}%`);
+        el.style.setProperty("--cy", `${y * 100}%`);
+      };
+
+      document.querySelectorAll("[data-spotlight]").forEach((el) => {
+        el.addEventListener(
+          "pointermove",
+          (e) => {
+            onSpotlight(el, e);
+          },
+          { passive: true }
+        );
+      });
+
+      document.querySelectorAll("[data-card]").forEach((el) => {
+        const px = Number(el.getAttribute("data-px") || "60");
+        const py = Number(el.getAttribute("data-py") || "35");
+        el.style.setProperty("--px", `${px}%`);
+        el.style.setProperty("--py", `${py}%`);
+        el.addEventListener(
+          "pointermove",
+          (e) => {
+            const r = el.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width;
+            const y = (e.clientY - r.top) / r.height;
+            el.style.setProperty("--px", `${(x * 100).toFixed(1)}%`);
+            el.style.setProperty("--py", `${(y * 100).toFixed(1)}%`);
+          },
+          { passive: true }
+        );
+      });
+
+      const reveal = new IntersectionObserver(
+        (entries) => {
+          for (const ent of entries) {
+            if (ent.isIntersecting) ent.target.classList.add("on");
+          }
+        },
+        { threshold: 0.12 }
+      );
+      const about = document.getElementById("about");
+      document.querySelectorAll("[data-reveal]").forEach((el) => {
+        if (about && el === about) return;
+        reveal.observe(el);
+      });
+
+      if (about) {
+        const coverSub = document.querySelector(".cover-inner .cover-sub");
+        if (coverSub) {
+          let raf = 0;
+          const update = () => {
+            raf = 0;
+            const r = coverSub.getBoundingClientRect();
+            about.classList.toggle("on", r.bottom <= 0);
+          };
+          const schedule = () => {
+            if (raf) return;
+            raf = requestAnimationFrame(update);
+          };
+          window.addEventListener("scroll", schedule, { passive: true });
+          window.addEventListener("resize", schedule, { passive: true });
+          schedule();
+        }
+      }
+
+      if (about && !reduceMotion) {
+        let rafId = 0;
+        const clamp01 = (v) => Math.min(1, Math.max(0, v));
+        const update = () => {
+          rafId = 0;
+          const r = about.getBoundingClientRect();
+          const vh = window.innerHeight || 1;
+          const start = vh * 0.92;
+          const end = vh * 0.28;
+          const p = clamp01((start - r.top) / Math.max(1, start - end));
+          about.style.setProperty("--about-p", p.toFixed(4));
+          about.style.setProperty("--about-x", `${(0.5 - p) * 26}px`);
+          about.style.setProperty("--about-y", `${(1 - p) * 22}px`);
+        };
+        const schedule = () => {
+          if (rafId) return;
+          rafId = requestAnimationFrame(update);
+        };
+        window.addEventListener("scroll", schedule, { passive: true });
+        window.addEventListener("resize", schedule, { passive: true });
+        schedule();
+      }
+
+      const setFill = (root = document) => {
+        root.querySelectorAll(".fill").forEach((bar) => {
+          const p = bar.style.getPropertyValue("--p") || "72%";
+          bar.style.width = p.trim();
+        });
+      };
+      setFill(document);
+
+      const toast = document.getElementById("toast");
+      let toastTimer = 0;
+      const showToast = (text) => {
+        toast.textContent = text;
+        toast.classList.add("show");
+        window.clearTimeout(toastTimer);
+        toastTimer = window.setTimeout(() => toast.classList.remove("show"), 1200);
+      };
+
+      const copyText = async (text) => {
+        try {
+          await navigator.clipboard.writeText(text);
+          showToast("已复制到剪贴板");
+        } catch {
+          showToast("复制失败（请手动复制）");
+        }
+      };
+
+      document.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          const sel = btn.getAttribute("data-copy");
+          const target = sel ? document.querySelector(sel) : null;
+          const text = target ? target.textContent.trim() : "";
+          if (text) await copyText(text);
+        });
+      });
+
+      const scroller = document.getElementById("timelineScroller");
+      const prefersReduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      if (scroller) {
+        const cards = Array.from(scroller.querySelectorAll("[data-card]"));
+        const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+
+        const maxScrollLeft = () => Math.max(0, scroller.scrollWidth - scroller.clientWidth);
+
+        const easeOut = (t) => 1 - Math.pow(1 - t, 3);
+
+        let activeIndex = -1;
+        const setActiveIndex = (idx) => {
+          if (idx === activeIndex) return;
+          activeIndex = idx;
+          cards.forEach((c, i) => {
+            c.classList.toggle("active", i === idx);
+            if (i === idx) c.setAttribute("aria-current", "true");
+            else c.removeAttribute("aria-current");
+          });
+        };
+
+        const nearestIndex = () => {
+          if (!cards.length) return -1;
+          const center = scroller.scrollLeft + scroller.clientWidth / 2;
+          let bestI = 0;
+          let bestD = Infinity;
+          for (let i = 0; i < cards.length; i++) {
+            const c = cards[i];
+            const cCenter = c.offsetLeft + c.offsetWidth / 2;
+            const d = Math.abs(cCenter - center);
+            if (d < bestD) {
+              bestD = d;
+              bestI = i;
+            }
+          }
+          return bestI;
+        };
+
+        const updateActive = () => {
+          const idx = nearestIndex();
+          if (idx >= 0) setActiveIndex(idx);
+        };
+
+        const animateScrollLeft = (to, ms = 420) => {
+          if (prefersReduce) {
+            scroller.scrollLeft = to;
+            updateActive();
+            return;
+          }
+          const from = scroller.scrollLeft;
+          const start = performance.now();
+          const dur = Math.max(120, ms);
+          const step = (now) => {
+            const t = clamp((now - start) / dur, 0, 1);
+            scroller.scrollLeft = from + (to - from) * easeOut(t);
+            updateActive();
+            if (t < 1) requestAnimationFrame(step);
+          };
+          requestAnimationFrame(step);
+        };
+
+        const snapToNearest = () => {
+          if (!cards.length) return;
+          const idx = nearestIndex();
+          const c = cards[Math.max(0, idx)];
+          const cCenter = c.offsetLeft + c.offsetWidth / 2;
+          const to = cCenter - scroller.clientWidth / 2;
+          animateScrollLeft(clamp(to, 0, maxScrollLeft()), 520);
+        };
+
+        scroller.addEventListener(
+          "wheel",
+          (e) => {
+            if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+            e.preventDefault();
+            const speed = e.shiftKey ? 2.15 : 1.25;
+            scroller.scrollLeft += e.deltaY * speed;
+          },
+          { passive: false }
+        );
+
+        let dragging = false;
+        let sx = 0;
+        let sl = 0;
+        let lastX = 0;
+        let lastT = 0;
+        let vx = 0;
+        let raf = 0;
+        let settleTimer = 0;
+
+        const stopMomentum = () => {
+          if (raf) cancelAnimationFrame(raf);
+          raf = 0;
+        };
+
+        const scheduleSettle = () => {
+          window.clearTimeout(settleTimer);
+          settleTimer = window.setTimeout(() => snapToNearest(), 120);
+        };
+
+        const momentum = () => {
+          raf = 0;
+          const friction = 0.94;
+          const minV = 0.03;
+          const step = () => {
+            const max = maxScrollLeft();
+            let next = scroller.scrollLeft - vx * 16.6;
+            if (next < 0 || next > max) vx *= 0.72;
+            next = clamp(next, 0, max);
+            scroller.scrollLeft = next;
+            vx *= friction;
+            if (Math.abs(vx) > minV) {
+              raf = requestAnimationFrame(step);
+              return;
+            }
+            snapToNearest();
+          };
+          raf = requestAnimationFrame(step);
+        };
+
+        scroller.addEventListener("pointerdown", (e) => {
+          dragging = true;
+          sx = e.clientX;
+          sl = scroller.scrollLeft;
+          lastX = e.clientX;
+          lastT = performance.now();
+          vx = 0;
+          stopMomentum();
+          scroller.classList.add("dragging");
+          scroller.setPointerCapture(e.pointerId);
+        });
+        scroller.addEventListener(
+          "pointermove",
+          (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - sx;
+            scroller.scrollLeft = sl - dx * 1.05;
+            const now = performance.now();
+            const dt = Math.max(8, now - lastT);
+            const dd = e.clientX - lastX;
+            vx = dd / dt;
+            lastX = e.clientX;
+            lastT = now;
+            updateActive();
+          },
+          { passive: true }
+        );
+        const endDrag = () => {
+          dragging = false;
+          scroller.classList.remove("dragging");
+          if (Math.abs(vx) > 0.08) {
+            momentum();
+          } else {
+            scheduleSettle();
+          }
+        };
+        scroller.addEventListener("pointerup", endDrag);
+        scroller.addEventListener("pointercancel", endDrag);
+        scroller.addEventListener(
+          "scroll",
+          () => {
+            updateActive();
+            if (dragging || raf) return;
+            scheduleSettle();
+          },
+          { passive: true }
+        );
+
+        updateActive();
+      }
+
+      // 项目详情数据 - 可自由编辑每个项目的内容
+      const projectData = {
+        p1: {
+          title: "四方行舟———逆水寒水上快闪店",
+          heroImg: "images/project1.png",
+          description: "以逆水寒镜湖场景为背景，根据玩家喜好设计快闪店动线和形式。完成包含周边设计、服务流程设计、模型制作的水上快闪店概念展。",
+          meta: [
+            { label: "标签", value: "服务设计、展览" },
+            { label: "项目人数与个人职责", value: "4人 / 参与调研、流程设计、展品制作、展台布置等" },
+            { label: "项目时间", value: "2025.4-2025.6" },
+          ],
+          sections: [
+            {
+              title: "设计过程",
+              text: "调研——服务蓝图构建——展品设计——展台布置",
+              // 添加详情图片：images/project1-detail1.png, images/project1-detail2.png
+              images: ["images/project1/1.png", "images/project1/2.png", "images/project1/3.png", "images/project1/4.png"],
+            },
+          ],
+        },
+        p2: {
+          title: "Toothtickler———儿童龋齿检测器",
+          heroImg: "images/project2.png",
+          description: "针对缺牙期易发龋齿且检测难度大的问题，将电味觉技术应用于龋齿检测，引导唾液分泌并减少检测时恐惧感，帮助儿童及时发现龋齿风险。",
+          meta: [
+            { label: "标签", value: "实体产品、医疗产品" },
+            { label: "项目人数与个人职责", value: "个人项目" },
+            { label: "项目时间", value: "2025.6" },
+          ],
+          sections: [
+            {
+              title: "设计方案",
+              text: "项目背景、解决方案及创新点、技术原理、使用方式",
+              images: [
+                "images/project2/1.png",
+                "images/project2/2.png",
+                "images/project2/3.png",
+                "images/project2/4.png"
+              ],
+            },
+          ],
+        },
+        p3: {
+          title: "户外移动卫生间节水装置",
+          heroImg: "images/project3.png",
+          description: "移动卫生间需要人工为水箱加水，易出现无水可用、污物堆积导致的使用效率降低；户外净水运输成本高；为解决该问题，设计了一个户外移动卫生间节水装置，通过收集污水经过过滤装置处理后，将净水直接输送到移动卫生间，实现了移动卫生间的自动用水。",
+          meta: [
+            { label: "标签", value: "实体产品、社会创新设计、可持续设计" },
+            { label: "项目人数与个人职责", value: "5人 / 组长，全程参与" },
+            { label: "项目时间", value: "2025.6-2025.7" },
+          ],
+          sections: [
+            {
+              title: "主要功能",
+              text: "粪尿分离、污水净化、可移动",
+              images: [
+                "images/project3/1.jpg",
+                "images/project3/2.jpg",
+                "images/project3/3.jpg",
+                "images/project3/4.jpg",
+                "images/project3/5.jpg",
+                "images/project3/6.jpg",
+                "images/project3/7.jpg"
+              ],
+            },
+          ],
+        },
+        p4: {
+          title: "吾痛———帮助儿童表达疼痛",
+          heroImg: "images/project4.png",
+          description: "儿童疼痛辅助表达app，结合AR技术，帮助儿童更直观地记录和表达疼痛部位、程度、种类，同时提供疼痛等级评估和建议。",
+          meta: [
+            { label: "标签", value: "动作触发、状态机、反馈强度分级" },
+            { label: "项目人数与个人职责", value: "3人 / 全程参与" },
+            { label: "项目时间", value: "2025.6-2025.7" },
+          ],
+          sections: [
+            {
+              title: "设计过程",
+              text: "调研——用户需求分析——功能设计——原型设计",
+              images: [
+                "images/project4/1.png",
+                "images/project4/2.png",
+                "images/project4/3.png",
+                "images/project4/4.png",
+                "images/project4/5.png",
+                "images/project4/6.png",
+                "images/project4/7.png"
+              ],
+            },
+          ],
+        },
+        p5: {
+          title: "MindNest———心灵巢",
+          heroImg: "images/project5.png",
+          description: "针对18-35岁人群的焦虑疗愈app，支持连接MR设备，提供焦虑疗愈、情感支持、个人成长记录等功能。",
+          meta: [
+            { label: "标签", value: "UX/UI、MR、用户体验设计" },
+            { label: "项目人数与个人职责", value: "3人 / 全程参与" },
+            { label: "项目时间", value: "2025.11-2025.12" },
+          ],
+          sections: [
+            {
+              title: "特色",
+              text: "跟随虚拟疗愈伴侣Nomi的引导，完成焦虑评估、呼吸疗愈、利他疗愈、行为激活等CBD疗法流程，无需填写严肃枯燥的量表或担心隐私泄露",
+              images: [
+                "images/project5/1.png",
+                "images/project5/2.png",
+                "images/project5/3.png",
+                "images/project5/4.png",
+                "images/project5/5.png",
+                "images/project5/6.png",
+                "images/project5/7.png",
+                "images/project5/8.png",
+                "images/project5/9.png"
+              ],
+            },
+          ],
+        },
+        p6: {
+          title: "无人机集群手势控制",
+          heroImg: "images/project6.png",
+          description: "设计了一套基于手势控制的微型无人机集群密林侦察打击系统的手势+AR交互方案，并搭建了仿真验证环境",
+          meta: [
+            { label: "标签", value: "交互设计" },
+            { label: "项目人数与个人职责", value: "3人 / 参与调研、手势集构建和迭代、实验开展、仿真环境搭建、无人机运动控制等" },
+            { label: "项目时间", value: "2025.10-2026.1" },
+          ],
+          sections: [
+            {
+              title: "技术探索",
+              text: "Mediapipe视觉手势识别；UE+Airsim仿真环境测试手势控制方案的可行性；调研了手势设计的原则和评估方法",
+              demoUrl: "Mini_demo_game_for_fun.html",
+              video: "images/project6/video.mp4",
+              images: [
+                "images/project6/1.png",
+                "images/project6/2.png",
+                "images/project6/3.png"
+              ],
+            },
+          ],
+        },
+      };
+
+      // 全屏覆盖式详情页
+      const overlay = document.getElementById("projectOverlay");
+      const overlayTitle = document.getElementById("overlayTitle");
+      const overlayInner = document.getElementById("overlayInner");
+      const overlayContent = overlay ? overlay.querySelector(".overlay-content") : null;
+      const backBtn = document.getElementById("backBtn");
+
+      let overlayScrollY = 0;
+      let overlayReturnFocusEl = null;
+
+      const lockBodyScroll = () => {
+        overlayScrollY = window.scrollY || window.pageYOffset || 0;
+        document.body.style.position = "fixed";
+        document.body.style.top = `-${overlayScrollY}px`;
+        document.body.style.left = "0";
+        document.body.style.right = "0";
+        document.body.style.width = "100%";
+      };
+
+      const unlockBodyScroll = () => {
+        const top = document.body.style.top;
+        document.body.style.position = "";
+        document.body.style.top = "";
+        document.body.style.left = "";
+        document.body.style.right = "";
+        document.body.style.width = "";
+        const y = top ? Math.abs(parseInt(top, 10)) : overlayScrollY;
+        window.scrollTo(0, Number.isFinite(y) ? y : overlayScrollY);
+      };
+
+      const openOverlay = (id, sourceEl) => {
+        const data = projectData[id];
+        if (!data || !overlay || !overlayInner) return;
+
+        overlayReturnFocusEl = sourceEl || document.activeElement;
+
+        // 获取主题色
+        const cs = sourceEl ? getComputedStyle(sourceEl) : null;
+        const accent = cs ? cs.getPropertyValue("--accent").trim() : "rgba(213, 179, 154, 0.95)";
+        overlay.style.setProperty("--accent", accent);
+
+        // 设置标题
+        if (overlayTitle) overlayTitle.textContent = data.title;
+
+        // 生成内容 HTML
+        let html = "";
+
+        const sourceImgEl = sourceEl ? sourceEl.querySelector(".img") : null;
+        const sourceImgCss = sourceImgEl ? getComputedStyle(sourceImgEl).getPropertyValue("--project-img").trim() : "";
+        const heroSrc = sourceImgCss || `url('${data.heroImg}')`;
+
+        // 主图
+        html += `<div class="detail-hero" style="background-image: ${heroSrc};"></div>`;
+
+        // 项目信息区
+        html += '<div class="detail-info">';
+        
+        // 左侧：标题和描述
+        html += '<div class="detail-description">';
+        html += `<h2>${data.title}</h2>`;
+        html += `<p>${data.description}</p>`;
+        
+        // 体验演示按钮 - 移动到此处（项目描述下方）
+        // 查找项目数据中是否含有 demoUrl（此处需要从第一个 section 找或者从 root 找，
+        // 之前数据结构是在 sections[0].demoUrl，现在为了方便可以读取 section[0] 的 demoUrl，
+        // 或者遍历 sections 查找 demoUrl）
+        let demoUrl = "";
+        if (data.sections && data.sections.length > 0) {
+            for (const s of data.sections) {
+                if (s.demoUrl) {
+                    demoUrl = s.demoUrl;
+                    break;
+                }
+            }
+        }
+        if (demoUrl) {
+             html += '<div class="detail-demo" style="margin-top: 24px;">';
+             html += `<a href="${demoUrl}" target="_blank" class="btn" style="text-decoration:none; display:flex; justify-content:center; align-items:center; gap:8px; width:100%; box-sizing:border-box;">`;
+             html += `<span>🎮 体验演示小游戏</span>`;
+             html += `</a>`;
+             html += '</div>';
+        }
+        
+        html += '</div>';
+
+        // 右侧：元信息卡片
+        html += '<div class="detail-meta">';
+        const timeItem = data.meta.find((it) => String(it.label || "").includes("项目时间"));
+        const otherItems = data.meta.filter((it) => it !== timeItem);
+
+        if (otherItems.length > 0) {
+          html += '<div class="meta-card">';
+          for (const it of otherItems.slice(0, 2)) {
+            html += `<div class="meta-pair"><strong>${it.label}</strong><span>${it.value}</span></div>`;
+          }
+          html += "</div>";
+        }
+
+        if (timeItem) {
+          html += `<div class="meta-card"><strong>${timeItem.label}</strong><span>${timeItem.value}</span></div>`;
+        }
+        html += '</div>';
+        html += '</div>';
+
+        // 各个内容区块
+        for (const section of data.sections) {
+          html += '<div class="detail-section">';
+          html += `<h3>${section.title}</h3>`;
+          
+          // 文字描述块
+          if (section.text) {
+            html += '<div class="detail-text-block">';
+            html += `<p>${section.text}</p>`;
+            html += '</div>';
+          }
+
+          // 视频展示
+          if (section.video) {
+             html += '<div class="detail-video" style="margin-bottom: 20px;">';
+             html += `<video controls playsinline src="${section.video}" style="width: 100%; border-radius: 18px; border: 1px solid rgba(255, 255, 255, 0.7); box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08); background: rgba(0,0,0,0.03);"></video>`;
+             html += '</div>';
+          }
+
+          // 图片画廊
+          if (section.images && section.images.length > 0) {
+            html += '<div class="detail-gallery">';
+            for (const img of section.images) {
+              html += `<img class="gallery-img" src="${img}" alt="" loading="lazy" />`;
+            }
+            html += '</div>';
+          } else {
+            // 占位图片提示
+            html += '<div class="detail-gallery">';
+            html += '<div class="gallery-img placeholder"></div>';
+            html += '<div class="gallery-img placeholder"></div>';
+            html += '</div>';
+          }
+
+          html += '</div>';
+        }
+
+        overlayInner.innerHTML = html;
+
+        // 滚动到顶部
+        if (overlayContent) overlayContent.scrollTop = 0;
+
+        // 显示覆盖层
+        overlay.classList.add("show");
+        overlay.setAttribute("aria-hidden", "false");
+        lockBodyScroll();
+        if (backBtn) backBtn.focus();
+      };
+
+      const closeOverlay = () => {
+        if (!overlay) return;
+        overlay.classList.remove("show");
+        overlay.setAttribute("aria-hidden", "true");
+        unlockBodyScroll();
+        const el = overlayReturnFocusEl;
+        overlayReturnFocusEl = null;
+        if (el && typeof el.focus === "function") el.focus();
+      };
+
+      // 返回按钮点击
+      if (backBtn) backBtn.addEventListener("click", closeOverlay);
+
+      // ESC 键关闭
+      window.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && overlay && overlay.classList.contains("show")) {
+          closeOverlay();
+        }
+      });
+
+      // 项目卡片点击
+      document.querySelectorAll(".project-card[data-project]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-project");
+          if (id) openOverlay(id, btn);
+        });
+      });
+    </script>
+
+    <script type="module">
+      import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
+
+      const mount = document.querySelector("#ripple-bg");
+      if (mount) {
+        const vertexShader = `
+          varying vec2 vUv;
+          void main() {
+            vUv = uv;
+            gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+          }
+        `;
+
+        const simFragmentShader = `
+          uniform sampler2D uTexture;
+          uniform vec2 uResolution;
+          uniform vec2 uMouse;
+          uniform float uMouseSize;
+          uniform float uDamping;
+          uniform float uHeightDamping;
+          uniform float uStillDamping;
+          uniform float uStillFactor;
+          uniform float uWaveSpeed;
+          uniform float uImpulse;
+          uniform float uIsMouseDown;
+
+          varying vec2 vUv;
+
+          void main() {
+            vec2 cellSize = 1.0 / uResolution;
+            vec2 uv = vUv;
+
+            vec4 state = texture2D(uTexture, uv);
+            float height = state.r;
+            float velocity = state.g;
+
+            float up    = texture2D(uTexture, uv + vec2(0.0, cellSize.y)).r;
+            float down  = texture2D(uTexture, uv - vec2(0.0, cellSize.y)).r;
+            float left  = texture2D(uTexture, uv - vec2(cellSize.x, 0.0)).r;
+            float right = texture2D(uTexture, uv + vec2(cellSize.x, 0.0)).r;
+
+            float laplacian = (up + down + left + right - 4.0 * height);
+            velocity += laplacian * uWaveSpeed;
+            velocity *= uDamping;
+            height += velocity;
+            height *= uHeightDamping;
+
+            float still = clamp(uStillFactor, 0.0, 1.0);
+            float extraDamp = mix(1.0, uStillDamping, still);
+            velocity *= extraDamp;
+            height *= extraDamp;
+
+            float dist = distance(uv, uMouse);
+            if (uIsMouseDown > 0.5 && dist < uMouseSize) {
+              float s = 1.0 - dist / uMouseSize;
+              velocity += s * uImpulse;
+            }
+
+            gl_FragColor = vec4(height, velocity, 0.0, 1.0);
+          }
+        `;
+
+        const displayFragmentShader = `
+          uniform sampler2D uDisplacementMap;
+          uniform vec2 uResolution;
+          uniform vec2 uSimResolution;
+          uniform float uRefractionStrength;
+          uniform float uEdgeStrength;
+          uniform float uFresnelStrength;
+          uniform float uSpecularStrength;
+          uniform float uLightStrength;
+
+          varying vec2 vUv;
+
+          void main() {
+            vec2 texelSize = 1.0 / uSimResolution;
+
+            float hC = texture2D(uDisplacementMap, vUv).r;
+            float hL = texture2D(uDisplacementMap, vUv - vec2(texelSize.x, 0.0)).r;
+            float hR = texture2D(uDisplacementMap, vUv + vec2(texelSize.x, 0.0)).r;
+            float hD = texture2D(uDisplacementMap, vUv - vec2(0.0, texelSize.y)).r;
+            float hU = texture2D(uDisplacementMap, vUv + vec2(0.0, texelSize.y)).r;
+
+            vec2 grad = vec2(hR - hL, hU - hD);
+            vec3 normal = normalize(vec3(-grad * 26.0, 1.0));
+
+            vec2 uv = vUv + normal.xy * uRefractionStrength;
+            uv = clamp(uv, 0.0, 1.0);
+
+            vec2 p = uv * uResolution;
+
+            vec3 bg0 = vec3(0.9529, 0.9294, 0.9059);
+            vec3 bg1 = vec3(0.9373, 0.8941, 0.8588);
+            vec3 base = mix(bg0, bg1, uv.y);
+
+            vec2 c1 = vec2(0.16 * uResolution.x, 0.10 * uResolution.y);
+            vec2 r1 = vec2(900.0, 700.0);
+            float d1 = length((p - c1) / r1);
+            float a1 = 1.0 - smoothstep(0.0, 0.60, d1);
+            base = mix(base, vec3(0.8353, 0.7020, 0.6039), 0.35 * a1);
+
+            vec2 c2 = vec2(0.86 * uResolution.x, 0.24 * uResolution.y);
+            vec2 r2 = vec2(900.0, 650.0);
+            float d2 = length((p - c2) / r2);
+            float a2 = 1.0 - smoothstep(0.0, 0.58, d2);
+            base = mix(base, vec3(0.7961, 0.6314, 0.5137), 0.28 * a2);
+
+            vec2 c3 = vec2(0.55 * uResolution.x, 0.92 * uResolution.y);
+            vec2 r3 = vec2(1100.0, 800.0);
+            float d3 = length((p - c3) / r3);
+            float a3 = 1.0 - smoothstep(0.0, 0.62, d3);
+            base = mix(base, vec3(0.9216, 0.8431, 0.7804), 0.55 * a3);
+            float lap = (hL + hR + hD + hU - 4.0 * hC);
+            float edge = clamp(lap * 14.0, -1.0, 1.0) * uEdgeStrength;
+            float rippleMask = smoothstep(0.0, 1.0, abs(lap) * 24.0);
+
+            vec3 viewDir = vec3(0.0, 0.0, 1.0);
+            vec3 lightDir = normalize(vec3(0.35, 0.55, 1.0));
+            float ndl = clamp(dot(normal, lightDir), 0.0, 1.0);
+            vec3 halfDir = normalize(lightDir + viewDir);
+            float spec = pow(clamp(dot(normal, halfDir), 0.0, 1.0), 90.0);
+            float fresnel = pow(1.0 - clamp(dot(normal, viewDir), 0.0, 1.0), 4.0);
+
+            vec3 lighting = vec3(0.0);
+            lighting += fresnel * vec3(0.75, 0.9, 1.0) * uFresnelStrength;
+            lighting += spec * vec3(1.0) * uSpecularStrength;
+            lighting += (ndl - 0.5) * uLightStrength;
+
+            base = base + vec3(edge) + lighting * rippleMask;
+            base = clamp(base, 0.0, 1.0);
+
+            gl_FragColor = vec4(base, 1.0);
+          }
+        `;
+
+        const scene = new THREE.Scene();
+        const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+
+        const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: false });
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+        renderer.outputColorSpace = THREE.SRGBColorSpace;
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        mount.appendChild(renderer.domElement);
+
+        const simRes = 512;
+        const safeOptions = { format: THREE.RGBAFormat, type: THREE.HalfFloatType };
+        let currentTarget = new THREE.WebGLRenderTarget(simRes, simRes, safeOptions);
+        let previousTarget = new THREE.WebGLRenderTarget(simRes, simRes, safeOptions);
+
+        renderer.setClearColor(0x000000, 1);
+        renderer.setRenderTarget(currentTarget);
+        renderer.clear();
+        renderer.setRenderTarget(previousTarget);
+        renderer.clear();
+        renderer.setRenderTarget(null);
+
+        const simScene = new THREE.Scene();
+        const simCamera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+        const quadGeo = new THREE.PlaneGeometry(2, 2);
+
+        const simUniforms = {
+          uTexture: { value: null },
+          uResolution: { value: new THREE.Vector2(simRes, simRes) },
+          uMouse: { value: new THREE.Vector2(0.5, 0.5) },
+          uMouseSize: { value: 0.018 },
+          uDamping: { value: 0.975 },
+          uHeightDamping: { value: 0.9990 },
+          uStillDamping: { value: 0.92 },
+          uStillFactor: { value: 0.0 },
+          uWaveSpeed: { value: 0.26 },
+          uImpulse: { value: 0.55 },
+          uIsMouseDown: { value: 0.0 }
+        };
+
+        const simMaterial = new THREE.ShaderMaterial({
+          uniforms: simUniforms,
+          vertexShader,
+          fragmentShader: simFragmentShader
+        });
+        simScene.add(new THREE.Mesh(quadGeo, simMaterial));
+
+        const displayUniforms = {
+          uDisplacementMap: { value: null },
+          uResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) },
+          uSimResolution: { value: new THREE.Vector2(simRes, simRes) },
+          uRefractionStrength: { value: 0.02 },
+          uEdgeStrength: { value: 0.06 },
+          uFresnelStrength: { value: 0.06 },
+          uSpecularStrength: { value: 0.06 },
+          uLightStrength: { value: 0.02 },
+        };
+
+        const displayMaterial = new THREE.ShaderMaterial({
+          uniforms: displayUniforms,
+          vertexShader,
+          fragmentShader: displayFragmentShader,
+          depthTest: false,
+          depthWrite: false,
+        });
+        scene.add(new THREE.Mesh(quadGeo, displayMaterial));
+
+        let rippleMouseTimer = null;
+        let lastMoveMs = performance.now();
+
+        const onPointerMove = (e) => {
+          const x = e.clientX / window.innerWidth;
+          const y = 1.0 - e.clientY / window.innerHeight;
+          simUniforms.uMouse.value.set(x, y);
+          simUniforms.uIsMouseDown.value = 1.0;
+          lastMoveMs = performance.now();
+          clearTimeout(rippleMouseTimer);
+          rippleMouseTimer = setTimeout(() => {
+            simUniforms.uIsMouseDown.value = 0.0;
+          }, 80);
+        };
+        window.addEventListener("pointermove", onPointerMove, { passive: true });
+
+        window.addEventListener(
+          "resize",
+          () => {
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            displayUniforms.uResolution.value.set(window.innerWidth, window.innerHeight);
+          },
+          { passive: true }
+        );
+
+        const animate = () => {
+          requestAnimationFrame(animate);
+
+          const nowMs = performance.now();
+          const sinceMoveMs = nowMs - lastMoveMs;
+          const delayMs = 3000;
+          const fadeMs = 1500;
+          let f = 0;
+          if (sinceMoveMs > delayMs) {
+            f = (sinceMoveMs - delayMs) / fadeMs;
+            f = Math.max(0, Math.min(1, f));
+            f = f * f * (3 - 2 * f);
+          }
+          simUniforms.uStillFactor.value = f;
+
+          simUniforms.uTexture.value = previousTarget.texture;
+          renderer.setRenderTarget(currentTarget);
+          renderer.render(simScene, simCamera);
+
+          renderer.setRenderTarget(null);
+          displayUniforms.uDisplacementMap.value = currentTarget.texture;
+          renderer.render(scene, camera);
+
+          const temp = currentTarget;
+          currentTarget = previousTarget;
+          previousTarget = temp;
+        };
+        animate();
+      }
+    </script>
+  </body>
+</html>

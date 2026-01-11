@@ -1,0 +1,1129 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>小演示游戏</title>
+    <style>
+      :root {
+        --leg-bg: #0b1020;
+        --leg-text: rgba(255, 255, 255, 0.92);
+        --leg-muted: rgba(255, 255, 255, 0.62);
+      }
+
+      html,
+      body {
+        height: 100%;
+      }
+
+      body {
+        margin: 0;
+        background: radial-gradient(1200px 800px at 20% 10%, rgba(142, 230, 255, 0.14), transparent 60%),
+          radial-gradient(900px 600px at 90% 40%, rgba(135, 98, 255, 0.12), transparent 65%),
+          var(--leg-bg);
+        color: var(--leg-text);
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      }
+
+      .leg-wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 28px 16px 40px;
+      }
+
+      .leg-title {
+        font-size: 28px;
+        font-weight: 750;
+        letter-spacing: 0.4px;
+        margin: 0 0 10px;
+      }
+
+      .leg-subtitle {
+        margin: 0 0 18px;
+        color: var(--leg-muted);
+        line-height: 1.55;
+      }
+
+      .leg-card {
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 18px 60px rgba(0, 0, 0, 0.35);
+      }
+
+      .leg-grid {
+        display: flex;
+        gap: 14px;
+        padding: 14px;
+      }
+
+      .leg-left {
+        flex: 0 0 60%;
+        min-width: 0;
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .leg-right {
+        flex: 0 0 40%;
+        min-width: 0;
+        display: grid;
+        grid-template-rows: auto 1fr;
+        gap: 12px;
+      }
+
+      #leg-drone-canvas {
+        display: block;
+        width: 100%;
+        height: 560px;
+      }
+
+      .leg-hud {
+        position: absolute;
+        left: 12px;
+        top: 12px;
+        display: grid;
+        gap: 8px;
+        pointer-events: none;
+      }
+
+      .leg-pill {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.82);
+        background: rgba(0, 0, 0, 0.32);
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        border-radius: 999px;
+        padding: 8px 10px;
+        backdrop-filter: blur(8px);
+        white-space: nowrap;
+      }
+
+      .leg-video-wrap {
+        position: relative;
+        border-radius: 14px;
+        overflow: hidden;
+        background: rgba(0, 0, 0, 0.28);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      #leg-webcam {
+        width: 100%;
+        height: 320px;
+        display: block;
+        object-fit: cover;
+        transform: scaleX(-1);
+        background: rgba(0, 0, 0, 0.35);
+      }
+
+      #leg-overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .leg-status {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        text-align: center;
+        padding: 18px;
+        color: rgba(255, 255, 255, 0.86);
+        background: linear-gradient(180deg, rgba(11, 16, 32, 0.75), rgba(11, 16, 32, 0.35));
+        backdrop-filter: blur(6px);
+      }
+
+      .leg-error {
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 122, 122, 0.12);
+        border: 1px solid rgba(255, 122, 122, 0.34);
+        color: rgba(255, 255, 255, 0.92);
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .leg-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        background: rgba(255, 255, 255, 0.04);
+      }
+
+      .leg-table th,
+      .leg-table td {
+        padding: 10px 10px;
+        font-size: 13px;
+        vertical-align: top;
+      }
+
+      .leg-table th {
+        text-align: left;
+        color: rgba(255, 255, 255, 0.86);
+        background: rgba(255, 255, 255, 0.06);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      }
+
+      .leg-table td {
+        color: rgba(255, 255, 255, 0.74);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      }
+
+      .leg-table tr:last-child td {
+        border-bottom: none;
+      }
+
+      .leg-gesture {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        height: 26px;
+        padding: 0 8px;
+        border-radius: 10px;
+        background: rgba(142, 230, 255, 0.12);
+        border: 1px solid rgba(142, 230, 255, 0.28);
+        color: rgba(255, 255, 255, 0.9);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .leg-note {
+        color: rgba(255, 255, 255, 0.62);
+        font-size: 12px;
+        line-height: 1.5;
+        margin: 10px 2px 0;
+      }
+
+      @media (max-width: 980px) {
+        .leg-grid {
+          flex-direction: column;
+        }
+
+        .leg-left,
+        .leg-right {
+          flex-basis: auto;
+        }
+
+        #leg-drone-canvas {
+          height: 420px;
+        }
+      }
+
+      .leg-toggle-btn {
+        appearance: none;
+        border: 1px solid rgba(255, 255, 255, 0.26);
+        background: linear-gradient(135deg, rgba(199, 255, 182, 0.656), rgba(170, 255, 184, 0.741));
+        color: rgba(0, 48, 22, 0.9);
+        padding: 6px 14px;
+        min-width: 84px;
+        text-align: center;
+        border-radius: 999px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 650;
+        transition: transform 180ms ease, filter 180ms ease, background 180ms ease, border-color 180ms ease;
+        box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18), inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        user-select: none;
+      }
+
+      .leg-toggle-btn:hover {
+        filter: brightness(1.06) saturate(1.05);
+        border-color: rgba(255, 255, 255, 0.34);
+      }
+
+      .leg-toggle-btn:active {
+        transform: translateY(1px) scale(0.99);
+      }
+
+      .leg-toggle-btn:focus-visible {
+        outline: 2px solid rgba(255, 255, 255, 0.7);
+        outline-offset: 3px;
+      }
+
+      .leg-toggle-icon {
+        display: inline-block;
+        line-height: 1;
+        transform: translateY(1px);
+        transition: transform 220ms ease;
+        opacity: 0.8;
+      }
+
+      .leg-toggle-btn.is-open .leg-toggle-icon {
+        transform: translateY(1px) rotate(180deg);
+      }
+
+      .leg-guide {
+        max-height: 0;
+        opacity: 0;
+        transform: translateY(-8px);
+        overflow: hidden;
+        transition: max-height 360ms ease, opacity 260ms ease, transform 260ms ease;
+        will-change: max-height, opacity, transform;
+      }
+
+      .leg-guide.is-open {
+        max-height: 560px;
+        opacity: 1;
+        transform: translateY(0);
+      }
+    </style>
+  </head>
+  <body>
+    <main class="leg-wrap">
+      <h1 class="leg-title">演示小游戏（Mini demo Game）</h1>
+      
+      <div style="margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 20px; margin-bottom: 12px;">
+            <h2 class="leg-subtitle" style="font-size: 18px; margin: 0; font-weight: 600;">手势操作说明</h2>
+            <button id="toggle-guide-btn" class="leg-toggle-btn" type="button" aria-expanded="false" aria-controls="guide-image-container">
+              <span class="leg-toggle-text">展开</span>
+              <span class="leg-toggle-icon" aria-hidden="true">⌄</span>
+            </button>
+        </div>
+        <div id="guide-image-container" class="leg-guide">
+            <img src="images/project6/2.png" alt="手势操作说明图解" style="max-width: 100%; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.1);">
+        </div>
+      </div>
+
+      <h2 class="leg-subtitle" style="font-size: 18px; margin: 0; font-weight: 600;">双手手势控制三机编队 + 右手Yaw转向（支持悬停/巡航/调速/单机选择）</h2>
+      <p class="leg-subtitle">*此demo仅概括性演示手势控制三架无人机的基本操作，不完全与实际手势操作保持一致；由于视图限制，不展示无人机在垂直高度的运动；实际操作为仰视摄像头，电脑端演示为正视摄像头，部分手部活动可能更易疲劳</p>
+      <section class="leg-card" id="little-experimental-game">
+        <div class="leg-grid">
+          <div class="leg-left">
+            <canvas id="leg-drone-canvas"></canvas>
+            <div class="leg-hud">
+              <div class="leg-pill" id="leg-mode">模式：-</div>
+              <div class="leg-pill" id="leg-control">控制：-</div>
+              <div class="leg-pill" id="leg-gesture">手势：-</div>
+            </div>
+          </div>
+
+          <div class="leg-right">
+            <div>
+              <div class="leg-video-wrap">
+                <video id="leg-webcam" autoplay playsinline muted></video>
+                <canvas id="leg-overlay"></canvas>
+                <div class="leg-status" id="leg-status">请允许浏览器访问您的摄像头以开始体验</div>
+              </div>
+              <div class="leg-error" id="leg-error" hidden></div>
+              <div class="leg-note">建议使用 Chrome/Edge，并在 HTTPS 或 localhost 下打开此页面。</div>
+            </div>
+
+            <table class="leg-table" aria-label="手势操作说明">
+              <thead>
+                <tr>
+                  <th style="width: 148px">手势组合</th>
+                  <th>无人机状态/控制</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="leg-gesture">L:PALM + R:PALM</span></td>
+                  <td>TRIANGLE 三角编队</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:ONE + R:ONE</span></td>
+                  <td>LINE_HORIZONTAL 横向一字</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:TWO</span></td>
+                  <td>LINE_VERTICAL 纵向一字</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:THUMB_ONLY</span></td>
+                  <td>MODE_HOVER 悬停</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:GUN_L</span></td>
+                  <td>MODE_CRUISE 定速巡航（匀速前进）</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:SPIDERMAN + R:(1-5)</span></td>
+                  <td>MODE_SPEED_SET 调速（1-5档）</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">L:THUMB_3 + R:(1-3)</span></td>
+                  <td>MODE_SINGLE_SELECT 单机选择（1-3）</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">R:PALM</span></td>
+                  <td>Control UNLOCK（开启右手控制）</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">R:FIST</span></td>
+                  <td>Control LOCK / Emergency（暂停右手控制）</td>
+                </tr>
+                <tr>
+                  <td><span class="leg-gesture">R:PALM 旋转</span></td>
+                  <td>Yaw：逆时针 &gt;10° / 顺时针 &gt;5° 时持续转向</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module">
+      const toggleBtn = document.getElementById('toggle-guide-btn');
+      const guideContainer = document.getElementById('guide-image-container');
+      
+      toggleBtn.addEventListener('click', () => {
+        const isOpen = guideContainer.classList.toggle('is-open');
+        toggleBtn.classList.toggle('is-open', isOpen);
+        toggleBtn.setAttribute('aria-expanded', String(isOpen));
+        const label = toggleBtn.querySelector('.leg-toggle-text');
+        if (label) label.textContent = isOpen ? '收起' : '展开';
+      });
+
+      const droneCanvas = document.getElementById("leg-drone-canvas");
+      const droneCtx = droneCanvas.getContext("2d", { alpha: false });
+      const video = document.getElementById("leg-webcam");
+      const overlayCanvas = document.getElementById("leg-overlay");
+      const overlayCtx = overlayCanvas.getContext("2d");
+      const statusEl = document.getElementById("leg-status");
+      const errorEl = document.getElementById("leg-error");
+      const modeEl = document.getElementById("leg-mode");
+      const controlEl = document.getElementById("leg-control");
+      const gestureEl = document.getElementById("leg-gesture");
+
+      const HAND_CONNECTIONS = [
+        [0, 1],
+        [1, 2],
+        [2, 3],
+        [3, 4],
+        [0, 5],
+        [5, 6],
+        [6, 7],
+        [7, 8],
+        [5, 9],
+        [9, 10],
+        [10, 11],
+        [11, 12],
+        [9, 13],
+        [13, 14],
+        [14, 15],
+        [15, 16],
+        [13, 17],
+        [17, 18],
+        [18, 19],
+        [19, 20],
+        [0, 17],
+      ];
+
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const lerp = (a, b, t) => a + (b - a) * t;
+      const dist2 = (a, b) => {
+        const dx = a.x - b.x;
+        const dy = a.y - b.y;
+        return dx * dx + dy * dy;
+      };
+
+      const radToDeg = (r) => (r * 180) / Math.PI;
+      const degToRad = (d) => (d * Math.PI) / 180;
+      const wrapRad = (r) => {
+        const twoPi = Math.PI * 2;
+        let v = r % twoPi;
+        if (v < -Math.PI) v += twoPi;
+        if (v > Math.PI) v -= twoPi;
+        return v;
+      };
+
+      const mirrorLandmarks = (lm) => lm.map((p) => ({ x: 1 - p.x, y: p.y, z: p.z }));
+
+      class Drone {
+        constructor(x, y, hue, phase) {
+          this.x = x;
+          this.y = y;
+          this.targetX = x;
+          this.targetY = y;
+          this.hue = hue;
+          this.phase = phase;
+        }
+
+        step(dt, smoothness) {
+          const t = 1 - Math.pow(1 - smoothness, dt * 60);
+          this.x = lerp(this.x, this.targetX, t);
+          this.y = lerp(this.y, this.targetY, t);
+        }
+
+        draw(ctx, now, scale, yawRad, selected) {
+          const bob = Math.sin(now * 0.002 + this.phase) * (6 * scale);
+          const x = this.x;
+          const y = this.y + bob;
+
+          const bodyR = 16 * scale;
+          const propR = 6 * scale;
+          const arm = 16 * scale;
+
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(yawRad);
+
+          ctx.fillStyle = `hsla(${this.hue}, 85%, ${selected ? 68 : 62}%, 0.92)`;
+          ctx.beginPath();
+          ctx.arc(0, 0, bodyR, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (selected) {
+            ctx.strokeStyle = "rgba(142,230,255,0.85)";
+            ctx.lineWidth = 2.2 * scale;
+            ctx.beginPath();
+            ctx.arc(0, 0, bodyR + 5 * scale, 0, Math.PI * 2);
+            ctx.stroke();
+          }
+
+          ctx.strokeStyle = "rgba(255,255,255,0.24)";
+          ctx.lineWidth = 2 * scale;
+          ctx.beginPath();
+          ctx.moveTo(-arm, -arm);
+          ctx.lineTo(arm, arm);
+          ctx.moveTo(arm, -arm);
+          ctx.lineTo(-arm, arm);
+          ctx.stroke();
+
+          const propPositions = [
+            [-arm, -arm],
+            [arm, -arm],
+            [-arm, arm],
+            [arm, arm],
+          ];
+
+          const spin = now * 0.01 + this.phase;
+          for (const [px, py] of propPositions) {
+            ctx.fillStyle = "rgba(255,255,255,0.82)";
+            ctx.beginPath();
+            ctx.arc(px, py, propR, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.strokeStyle = "rgba(0,0,0,0.22)";
+            ctx.lineWidth = 1 * scale;
+            ctx.beginPath();
+            ctx.moveTo(px + Math.cos(spin) * propR, py + Math.sin(spin) * propR);
+            ctx.lineTo(px + Math.cos(spin + Math.PI) * propR, py + Math.sin(spin + Math.PI) * propR);
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = "rgba(255,255,255,0.9)";
+          ctx.beginPath();
+          ctx.moveTo(bodyR + 10 * scale, 0);
+          ctx.lineTo(bodyR + 2 * scale, -5 * scale);
+          ctx.lineTo(bodyR + 2 * scale, 5 * scale);
+          ctx.closePath();
+          ctx.fill();
+
+          ctx.restore();
+        }
+      }
+
+      const createStabilizer = () => ({
+        candidate: "NONE",
+        stable: "NONE",
+        frames: 0,
+        noHandFrames: 999,
+      });
+
+      const state = {
+        handLandmarker: null,
+        running: false,
+        lastTs: 0,
+        canvasW: 0,
+        canvasH: 0,
+        overlayW: 0,
+        overlayH: 0,
+        formation: "TRIANGLE",
+        mode: "MODE_HOVER",
+        prevMode: null,
+        control: "LOCK",
+        speedLevel: 3,
+        selectedDrone: null,
+        rightDigitLocked: false,
+        formationCenterX: 0,
+        formationCenterY: 0,
+        yawRad: -Math.PI / 2,
+        leftStab: createStabilizer(),
+        rightStab: createStabilizer(),
+        rightDigitStab: createStabilizer(),
+      };
+
+      const drones = [
+        new Drone(0, 0, 192, 0.1),
+        new Drone(0, 0, 34, 1.7),
+        new Drone(0, 0, 280, 3.2),
+      ];
+
+      const setError = (message) => {
+        errorEl.hidden = !message;
+        errorEl.textContent = message || "";
+      };
+
+      const setStatusVisible = (visible, text) => {
+        statusEl.style.display = visible ? "grid" : "none";
+        if (typeof text === "string") statusEl.textContent = text;
+      };
+
+      const formatMode = () => {
+        const modeMap = {
+          MODE_HOVER: "悬停",
+          MODE_CRUISE: "巡航",
+          MODE_SPEED_SET: `调速（${state.speedLevel}档）`,
+          MODE_SINGLE_SELECT: `单机选择（${state.selectedDrone == null ? "-" : state.selectedDrone + 1}号）`,
+          MODE_MANUAL: "手动",
+        };
+        const formationMap = {
+          TRIANGLE: "三角编队",
+          LINE_VERTICAL: "纵向一字",
+          LINE_HORIZONTAL: "横向一字",
+        };
+        return `模式：${modeMap[state.mode] || state.mode} · ${formationMap[state.formation] || state.formation}`;
+      };
+
+      const formatControl = () => {
+        return `控制：${state.control === "UNLOCK" ? "UNLOCK" : "LOCK / Emergency"}`;
+      };
+
+      const formatGesture = () => {
+        const left = state.leftStab.stable || "NONE";
+        const right = state.rightStab.stable || "NONE";
+        return `手势：L=${left} · R=${right}`;
+      };
+
+      const resizeCanvases = () => {
+        const dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+
+        const rect = droneCanvas.getBoundingClientRect();
+        const w = Math.max(1, Math.floor(rect.width * dpr));
+        const h = Math.max(1, Math.floor(rect.height * dpr));
+        if (droneCanvas.width !== w || droneCanvas.height !== h) {
+          droneCanvas.width = w;
+          droneCanvas.height = h;
+        }
+        state.canvasW = w;
+        state.canvasH = h;
+
+        const orect = overlayCanvas.getBoundingClientRect();
+        const ow = Math.max(1, Math.floor(orect.width * dpr));
+        const oh = Math.max(1, Math.floor(orect.height * dpr));
+        if (overlayCanvas.width !== ow || overlayCanvas.height !== oh) {
+          overlayCanvas.width = ow;
+          overlayCanvas.height = oh;
+        }
+        state.overlayW = ow;
+        state.overlayH = oh;
+      };
+
+      const drawDroneBackground = () => {
+        const ctx = droneCtx;
+        const w = state.canvasW;
+        const h = state.canvasH;
+        ctx.clearRect(0, 0, w, h);
+
+        ctx.fillStyle = "#070b16";
+        ctx.fillRect(0, 0, w, h);
+
+        const gridStep = Math.floor(Math.max(26, Math.min(48, Math.min(w, h) / 18)));
+        ctx.strokeStyle = "rgba(142,230,255,0.08)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (let x = 0; x <= w; x += gridStep) {
+          ctx.moveTo(x + 0.5, 0);
+          ctx.lineTo(x + 0.5, h);
+        }
+        for (let y = 0; y <= h; y += gridStep) {
+          ctx.moveTo(0, y + 0.5);
+          ctx.lineTo(w, y + 0.5);
+        }
+        ctx.stroke();
+
+        const horizonY = h * 0.72;
+        ctx.fillStyle = "rgba(142,230,255,0.06)";
+        ctx.fillRect(0, horizonY, w, h - horizonY);
+
+        ctx.strokeStyle = "rgba(255,255,255,0.08)";
+        ctx.beginPath();
+        ctx.moveTo(0, horizonY + 0.5);
+        ctx.lineTo(w, horizonY + 0.5);
+        ctx.stroke();
+
+        const vignette = ctx.createRadialGradient(
+          w * 0.5,
+          h * 0.45,
+          Math.min(w, h) * 0.2,
+          w * 0.5,
+          h * 0.5,
+          Math.max(w, h) * 0.75
+        );
+        vignette.addColorStop(0, "rgba(0,0,0,0)");
+        vignette.addColorStop(1, "rgba(0,0,0,0.35)");
+        ctx.fillStyle = vignette;
+        ctx.fillRect(0, 0, w, h);
+      };
+
+      const drawHandLandmarks = (hands) => {
+        overlayCtx.clearRect(0, 0, state.overlayW, state.overlayH);
+        if (!hands || hands.length === 0) return;
+
+        overlayCtx.save();
+        overlayCtx.translate(state.overlayW, 0);
+        overlayCtx.scale(-1, 1);
+
+        overlayCtx.lineWidth = Math.max(2, state.overlayW / 420);
+
+        for (const hand of hands) {
+          const lm = hand.landmarks;
+          const color = hand.side === "Left" ? "rgba(255,210,120,0.88)" : "rgba(142,230,255,0.88)";
+          overlayCtx.strokeStyle = color;
+          overlayCtx.beginPath();
+          for (const [a, b] of HAND_CONNECTIONS) {
+            const p1 = lm[a];
+            const p2 = lm[b];
+            overlayCtx.moveTo(p1.x * state.overlayW, p1.y * state.overlayH);
+            overlayCtx.lineTo(p2.x * state.overlayW, p2.y * state.overlayH);
+          }
+          overlayCtx.stroke();
+
+          for (let i = 0; i < lm.length; i++) {
+            const p = lm[i];
+            const r = i === 0 ? 5 : 3;
+            overlayCtx.fillStyle = i === 0 ? "rgba(255,255,255,0.92)" : "rgba(255,255,255,0.78)";
+            overlayCtx.beginPath();
+            overlayCtx.arc(p.x * state.overlayW, p.y * state.overlayH, r, 0, Math.PI * 2);
+            overlayCtx.fill();
+          }
+        }
+
+        overlayCtx.restore();
+      };
+
+      const fingerExtended = (lm, tipIdx, pipIdx) => {
+        const tip = lm[tipIdx];
+        const pip = lm[pipIdx];
+        const wrist = lm[0];
+        return dist2(tip, wrist) > dist2(pip, wrist) * 1.22;
+      };
+
+      const detectGesture = (lmRaw) => {
+        const lm = mirrorLandmarks(lmRaw);
+        const wrist = lm[0];
+        const thumbTip = lm[4];
+        const thumbMcp = lm[2];
+        const indexTip = lm[8];
+        const middleTip = lm[12];
+        const ringTip = lm[16];
+        const pinkyTip = lm[20];
+
+        const indexExt = fingerExtended(lm, 8, 6);
+        const middleExt = fingerExtended(lm, 12, 10);
+        const ringExt = fingerExtended(lm, 16, 14);
+        const pinkyExt = fingerExtended(lm, 20, 18);
+        const thumbExt = dist2(thumbTip, wrist) > dist2(thumbMcp, wrist) * 1.18;
+
+        const palmSize = Math.sqrt(dist2(lm[9], wrist));
+        const openPalm =
+          thumbExt &&
+          indexExt &&
+          middleExt &&
+          ringExt &&
+          pinkyExt &&
+          Math.sqrt(dist2(indexTip, wrist)) > palmSize * 1.15 &&
+          Math.sqrt(dist2(pinkyTip, wrist)) > palmSize * 1.15;
+        if (openPalm) return "PALM";
+
+        const fist =
+          !thumbExt &&
+          !indexExt &&
+          !middleExt &&
+          !ringExt &&
+          !pinkyExt &&
+          Math.sqrt(dist2(indexTip, wrist)) < palmSize * 0.95 &&
+          Math.sqrt(dist2(middleTip, wrist)) < palmSize * 0.95;
+        if (fist) return "FIST";
+
+        if (thumbExt && !indexExt && !middleExt && !ringExt && !pinkyExt) return "THUMB_ONLY";
+        if (thumbExt && indexExt && middleExt && !ringExt && !pinkyExt) return "THUMB_3";
+        if (thumbExt && indexExt && !middleExt && !ringExt && !pinkyExt) return "GUN_L";
+        if (thumbExt && indexExt && pinkyExt && !middleExt && !ringExt) return "SPIDERMAN";
+
+        if (indexExt && !middleExt && !ringExt && !pinkyExt && !thumbExt) return "ONE";
+        if (indexExt && middleExt && !ringExt && !pinkyExt && !thumbExt) return "TWO";
+        if (indexExt && middleExt && ringExt && !pinkyExt && !thumbExt || !indexExt && middleExt && ringExt && pinkyExt && !thumbExt) return "THREE";
+        if (indexExt && middleExt && ringExt && pinkyExt && !thumbExt) return "FOUR";
+
+        return "NONE";
+      };
+
+      const gestureToDigit = (g) => {
+        if (g === "ONE") return 1;
+        if (g === "TWO") return 2;
+        if (g === "THREE") return 3;
+        if (g === "FOUR") return 4;
+        if (g === "PALM") return 5;
+        return null;
+      };
+
+      const detectRelativeDigit = (lmRaw) => {
+        const lm = mirrorLandmarks(lmRaw);
+        const wrist = lm[0];
+        const thumbExt = dist2(lm[4], wrist) > dist2(lm[2], wrist) * 1.18;
+        const indexExt = fingerExtended(lm, 8, 6);
+        const middleExt = fingerExtended(lm, 12, 10);
+        const ringExt = fingerExtended(lm, 16, 14);
+        const pinkyExt = fingerExtended(lm, 20, 18);
+        return (thumbExt ? 1 : 0) + (indexExt ? 1 : 0) + (middleExt ? 1 : 0) + (ringExt ? 1 : 0) + (pinkyExt ? 1 : 0);
+      };
+
+      const updateStabilizer = (stab, currentGesture, hasHand) => {
+        if (!hasHand) {
+          stab.noHandFrames += 1;
+          if (stab.noHandFrames > 18) {
+            stab.candidate = "NONE";
+            stab.stable = "NONE";
+            stab.frames = 0;
+          }
+          return;
+        }
+
+        stab.noHandFrames = 0;
+        if (currentGesture === stab.candidate) stab.frames += 1;
+        else {
+          stab.candidate = currentGesture;
+          stab.frames = 1;
+        }
+
+        const confirmFrames = 7;
+        if (stab.frames >= confirmFrames) stab.stable = stab.candidate;
+      };
+
+      const computePalmRollDeg = (lmRaw) => {
+        const lm = mirrorLandmarks(lmRaw);
+        const a = lm[5];
+        const b = lm[17];
+        const dx = b.x - a.x;
+        const dy = b.y - a.y;
+        return radToDeg(Math.atan2(dy, dx));
+      };
+
+      const formationOffsets = (formation, scale) => {
+        const dx = 86 * scale;
+        const dy = 72 * scale;
+        if (formation === "LINE_VERTICAL") {
+          return [
+            { x: 0, y: -dy * 1.1 },
+            { x: 0, y: 0 },
+            { x: 0, y: dy * 1.1 },
+          ];
+        }
+        if (formation === "LINE_HORIZONTAL") {
+          return [
+            { x: -dx * 1.05, y: 0 },
+            { x: 0, y: 0 },
+            { x: dx * 1.05, y: 0 },
+          ];
+        }
+        return [
+          { x: 0, y: -dy },
+          { x: -dx, y: dy * 0.68 },
+          { x: dx, y: dy * 0.68 },
+        ];
+      };
+
+      const speedPixelsPerSecond = (level, scale) => {
+        const table = [0, 70, 110, 155, 210, 280];
+        return table[clamp(level, 1, 5)] * scale;
+      };
+
+      const clampCenter = (x, y, scale) => {
+        const margin = 100 * scale;
+        return {
+          x: clamp(x, margin, state.canvasW - margin),
+          y: clamp(y, margin, state.canvasH - margin),
+        };
+      };
+
+      const updateLogic = (dt, leftHand, rightHand) => {
+        const scale = clamp(Math.min(state.canvasW, state.canvasH) / 700, 0.75, 1.2);
+        const defaultCenter = { x: state.canvasW * 0.5, y: state.canvasH * 0.52 };
+
+        const hasLeft = !!leftHand;
+        const hasRight = !!rightHand;
+
+        const isActionMode = state.mode === "MODE_SPEED_SET" || state.mode === "MODE_SINGLE_SELECT";
+        const allowRightDigit = isActionMode;
+        const allowRightControl = !isActionMode && (state.mode === "MODE_HOVER" || state.mode === "MODE_CRUISE");
+
+        const leftRaw = hasLeft ? detectGesture(leftHand.landmarks) : "NONE";
+        updateStabilizer(state.leftStab, leftRaw, hasLeft);
+
+        const rightRaw = hasRight ? detectGesture(rightHand.landmarks) : "NONE";
+        updateStabilizer(state.rightStab, allowRightControl ? rightRaw : "NONE", allowRightControl && hasRight);
+
+        if (state.rightDigitLocked) {
+          if (!hasRight || rightRaw === "NONE" || rightRaw === "PALM") {
+            state.rightDigitLocked = false;
+            state.rightDigitStab.candidate = "NONE";
+            state.rightDigitStab.stable = "NONE";
+            state.rightDigitStab.frames = 0;
+          }
+        }
+
+        const rightStable = state.rightStab.stable;
+        const leftStable = state.leftStab.stable; // Move leftStable definition up
+
+        // 修正逻辑：只有当不是双PALM（即不是切换三角编队）时，才允许Yaw控制
+        const isDoublePalm = (leftStable === "PALM" && rightStable === "PALM");
+        
+        if (allowRightControl) {
+          if (rightStable === "PALM" && !isDoublePalm) state.control = "UNLOCK";
+          if (rightStable === "FIST") state.control = "LOCK";
+        }
+
+        if (leftStable === "PALM" && rightStable === "PALM") state.formation = "TRIANGLE";
+        if (leftStable === "ONE" && rightStable === "ONE") state.formation = "LINE_HORIZONTAL";
+        if (leftStable === "GUN_L" && rightStable === "GUN_L") state.formation = "LINE_HORIZONTAL";
+        if (leftStable === "ONE" && rightStable === "GUN_L") state.formation = "LINE_HORIZONTAL";
+        if (leftStable === "TWO") state.formation = "LINE_VERTICAL";
+        if (leftStable === "THUMB_3" && rightStable === "NONE") state.formation = "LINE_VERTICAL"; 
+
+        if (!isActionMode) {
+          if (leftStable === "THUMB_ONLY") state.mode = "MODE_HOVER";
+          else if (leftStable === "GUN_L") state.mode = "MODE_CRUISE";
+        }
+
+        if (!state.rightDigitLocked) {
+          if (!isActionMode && leftStable === "SPIDERMAN") {
+            state.prevMode = state.mode;
+            state.mode = "MODE_SPEED_SET";
+          } else if (!isActionMode && leftStable === "THUMB_3") {
+            state.prevMode = state.mode;
+            state.mode = "MODE_SINGLE_SELECT";
+          }
+        }
+
+        const stillActionMode = state.mode === "MODE_SPEED_SET" || state.mode === "MODE_SINGLE_SELECT";
+        if (stillActionMode) {
+          const shouldStay =
+            (state.mode === "MODE_SPEED_SET" && leftStable === "SPIDERMAN") ||
+            (state.mode === "MODE_SINGLE_SELECT" && leftStable === "THUMB_3");
+          if (!shouldStay) {
+            state.mode = state.prevMode || "MODE_HOVER";
+            state.prevMode = null;
+            state.rightDigitStab.candidate = "NONE";
+            state.rightDigitStab.stable = "NONE";
+            state.rightDigitStab.frames = 0;
+          }
+        }
+
+        if (state.formationCenterX === 0 && state.formationCenterY === 0) {
+          state.formationCenterX = defaultCenter.x;
+          state.formationCenterY = defaultCenter.y;
+        }
+
+        const actionModeNow = state.mode === "MODE_SPEED_SET" || state.mode === "MODE_SINGLE_SELECT";
+        if (actionModeNow) {
+          const digitActive = hasRight ? detectRelativeDigit(rightHand.landmarks) : null;
+          updateStabilizer(state.rightDigitStab, digitActive == null ? "NONE" : String(digitActive), hasRight);
+
+          const digit = state.rightDigitStab.stable === "NONE" ? null : Number(state.rightDigitStab.stable);
+          if (digit != null) {
+            if (state.mode === "MODE_SPEED_SET" && digit >= 1 && digit <= 5) state.speedLevel = digit;
+            if (state.mode === "MODE_SINGLE_SELECT" && digit >= 1 && digit <= 3) state.selectedDrone = digit - 1;
+
+            state.rightDigitLocked = true;
+            state.rightDigitStab.candidate = "NONE";
+            state.rightDigitStab.stable = "NONE";
+            state.rightDigitStab.frames = 0;
+            state.mode = state.prevMode || "MODE_HOVER";
+            state.prevMode = null;
+          }
+        } else {
+          updateStabilizer(state.rightDigitStab, "NONE", false);
+        }
+
+        let yawRate = 0;
+        if (allowRightControl && state.control === "UNLOCK" && hasRight && rightStable === "PALM" && !isDoublePalm) {
+          const rollDeg = computePalmRollDeg(rightHand.landmarks);
+          if (rollDeg > 10) yawRate = degToRad(70);
+          else if (rollDeg < -5) yawRate = degToRad(-70);
+        }
+
+        state.yawRad = wrapRad(state.yawRad + yawRate * dt);
+
+        const motionMode = actionModeNow ? state.mode : state.mode;
+        const dynamicsMode =
+          motionMode === "MODE_SPEED_SET" || motionMode === "MODE_SINGLE_SELECT" ? state.prevMode || "MODE_HOVER" : motionMode;
+
+        if (dynamicsMode === "MODE_CRUISE") {
+          const spd = speedPixelsPerSecond(state.speedLevel, scale);
+          const nx = state.formationCenterX + Math.cos(state.yawRad) * spd * dt;
+          const ny = state.formationCenterY + Math.sin(state.yawRad) * spd * dt;
+          const clamped = clampCenter(nx, ny, scale);
+          state.formationCenterX = clamped.x;
+          state.formationCenterY = clamped.y;
+        } else if (dynamicsMode === "MODE_MANUAL" && hasLeft) {
+          const lm = mirrorLandmarks(leftHand.landmarks);
+          const palm = lm[9];
+          const margin = 0.08;
+          const cx = clamp(palm.x, margin, 1 - margin) * state.canvasW;
+          const cy = clamp(palm.y, margin, 1 - margin) * state.canvasH;
+          const clamped = clampCenter(cx, cy, scale);
+          state.formationCenterX = lerp(state.formationCenterX, clamped.x, 0.16);
+          state.formationCenterY = lerp(state.formationCenterY, clamped.y, 0.16);
+        } else {
+          state.formationCenterX = lerp(state.formationCenterX, state.formationCenterX, 1);
+          state.formationCenterY = lerp(state.formationCenterY, state.formationCenterY, 1);
+        }
+
+        const offsets = formationOffsets(state.formation, scale);
+        for (let i = 0; i < drones.length; i++) {
+          drones[i].targetX = state.formationCenterX + offsets[i].x;
+          drones[i].targetY = state.formationCenterY + offsets[i].y;
+        }
+      };
+
+      const render = (ts, hands) => {
+        const dt = state.lastTs ? (ts - state.lastTs) / 1000 : 1 / 60;
+        state.lastTs = ts;
+
+        const leftHand = hands.find((h) => h.side === "Left") || null;
+        const rightHand = hands.find((h) => h.side === "Right") || null;
+
+        updateLogic(dt, leftHand, rightHand);
+
+        drawDroneBackground();
+        const scale = clamp(Math.min(state.canvasW, state.canvasH) / 700, 0.75, 1.2);
+        const dynamicsMode =
+          state.mode === "MODE_SPEED_SET" || state.mode === "MODE_SINGLE_SELECT" ? state.prevMode || "MODE_HOVER" : state.mode;
+        const smoothness = dynamicsMode === "MODE_HOVER" ? 0.22 : dynamicsMode === "MODE_CRUISE" ? 0.14 : 0.16;
+
+        for (const d of drones) d.step(dt, smoothness);
+        for (let i = 0; i < drones.length; i++) {
+          drones[i].draw(droneCtx, ts, scale, state.yawRad, state.selectedDrone === i);
+        }
+
+        modeEl.textContent = formatMode();
+        controlEl.textContent = formatControl();
+        gestureEl.textContent = formatGesture();
+      };
+
+      const init = async () => {
+        resizeCanvases();
+        const resizeObserver = new ResizeObserver(() => resizeCanvases());
+        resizeObserver.observe(droneCanvas);
+        resizeObserver.observe(overlayCanvas);
+
+        state.formationCenterX = state.canvasW * 0.5;
+        state.formationCenterY = state.canvasH * 0.52;
+        for (let i = 0; i < drones.length; i++) {
+          drones[i].x = state.formationCenterX;
+          drones[i].y = state.formationCenterY;
+          drones[i].targetX = drones[i].x;
+          drones[i].targetY = drones[i].y;
+        }
+
+        modeEl.textContent = formatMode();
+        controlEl.textContent = formatControl();
+        gestureEl.textContent = formatGesture();
+
+        if (!navigator.mediaDevices?.getUserMedia) {
+          setError("当前浏览器不支持摄像头访问（getUserMedia）。");
+          return;
+        }
+
+        setStatusVisible(true, "正在请求摄像头权限…");
+
+        let stream;
+        try {
+          stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
+            audio: false,
+          });
+        } catch {
+          setStatusVisible(true, "请允许浏览器访问您的摄像头以开始体验");
+          setError("无法访问摄像头：权限被拒绝或设备不可用。");
+          return;
+        }
+
+        video.srcObject = stream;
+        await new Promise((resolve) => {
+          if (video.readyState >= 2) resolve();
+          else video.onloadeddata = () => resolve();
+        });
+
+        setStatusVisible(true, "正在加载手势识别模型…");
+
+        let HandLandmarker, FilesetResolver;
+        try {
+          ({ HandLandmarker, FilesetResolver } = await import(
+            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/vision_bundle.mjs"
+          ));
+        } catch {
+          setError("无法加载 MediaPipe 组件，请检查网络或 CDN 是否可用。");
+          return;
+        }
+
+        const vision = await FilesetResolver.forVisionTasks(
+          "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
+        );
+
+        state.handLandmarker = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: {
+            modelAssetPath:
+              "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task",
+            delegate: "GPU",
+          },
+          runningMode: "VIDEO",
+          numHands: 2,
+        });
+
+        setStatusVisible(false);
+        setError("");
+        state.running = true;
+
+        const loop = () => {
+          if (!state.running) return;
+          const ts = performance.now();
+
+          let hands = [];
+          try {
+            const result = state.handLandmarker.detectForVideo(video, ts);
+            const lms = result?.landmarks || [];
+            const handedness = result?.handednesses || result?.handedness || [];
+
+            hands = lms.map((lm, i) => {
+              const categories = handedness[i] || [];
+              const side = categories[0]?.categoryName || categories[0]?.displayName || "Unknown";
+              return { landmarks: lm, side };
+            });
+          } catch {
+            setError("手势识别运行失败：请刷新页面重试。");
+            state.running = false;
+            return;
+          }
+
+          drawHandLandmarks(hands);
+          render(ts, hands);
+          requestAnimationFrame(loop);
+        };
+
+        requestAnimationFrame(loop);
+      };
+
+      init();
+    </script>
+  </body>
+</html>
