@@ -194,6 +194,48 @@
         font-weight: 820;
       }
 
+      .cover-inner.cover-intro .cover-name {
+        opacity: 0;
+        transform: translate3d(0, 56px, 0);
+        will-change: transform, opacity;
+      }
+
+      .cover-inner.cover-intro .cover-sub {
+        opacity: 0;
+        transform: translate3d(0, 10px, 0);
+        will-change: transform, opacity;
+      }
+
+      .cover-inner.cover-intro.is-animating .cover-name {
+        animation: coverNameIn 3000ms var(--ease) both;
+      }
+
+      .cover-inner.cover-intro.is-animating .cover-sub {
+        animation: coverSubIn 3000ms var(--ease) both;
+      }
+
+      @keyframes coverNameIn {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 56px, 0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
+      @keyframes coverSubIn {
+        0% {
+          opacity: 0;
+          transform: translate3d(0, 10px, 0);
+        }
+        100% {
+          opacity: 1;
+          transform: translate3d(0, 0, 0);
+        }
+      }
+
       @media (max-width: 720px) {
         .cover {
           padding-left: 10px;
@@ -642,6 +684,68 @@
         max-width: 70ch;
       }
 
+      .projects-layout {
+        display: grid;
+        grid-template-columns: 1fr 140px;
+        gap: 16px;
+        align-items: start;
+      }
+
+      .projects-filters {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        justify-self: end;
+      }
+
+      .filter-chip {
+        cursor: pointer;
+        width: fit-content;
+        min-width: 132px;
+        justify-content: center;
+        transition: transform 320ms var(--ease), background 320ms var(--ease), border-color 320ms var(--ease),
+          box-shadow 320ms var(--ease), filter 320ms var(--ease);
+      }
+
+      .filter-chip.active {
+        background: linear-gradient(180deg, rgba(254, 248, 255, 0.6), rgba(247, 255, 249, 0.26));
+        border-color: rgba(255, 255, 255, 0.72);
+        transform: scale(1.06);
+        filter: saturate(1.08) contrast(1.02);
+        backdrop-filter: blur(18px);
+        box-shadow:
+          inset 0 3px 10px rgba(22, 18, 16, 0.16),
+          inset 0 -3px 10px rgba(255, 255, 255, 0.55);
+      }
+
+      .filter-chip.active:hover {
+        transform: scale(1.06);
+      }
+
+      .filter-chip.active::before,
+      .filter-chip.active:hover::before {
+        opacity: 0;
+      }
+
+      .filter-chip.active small {
+        color: rgba(22, 18, 16, 0.76);
+      }
+
+      @media (max-width: 980px) {
+        .projects-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .projects-filters {
+          flex-direction: row;
+          flex-wrap: wrap;
+          gap: 12px;
+          margin-bottom: 10px;
+        }
+      }
+
       .timeline {
         position: relative;
         border-radius: var(--radius-xl);
@@ -661,6 +765,8 @@
         backdrop-filter: blur(18px);
         box-shadow: var(--shadow);
         padding: 18px 18px 22px;
+        width: 100%;
+        margin: 0;
       }
 
       .vt-glass-bg {
@@ -733,8 +839,30 @@
 
       .vtimeline-inner {
         position: relative;
-        z-index: 1;
+        z-index: 3;
         padding: 14px 0 10px;
+        max-height: 70vh;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(22, 18, 16, 0.15) transparent;
+      }
+
+      .vtimeline-inner::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .vtimeline-inner::-webkit-scrollbar-track {
+        background: transparent;
+      }
+
+      .vtimeline-inner::-webkit-scrollbar-thumb {
+        background: rgba(22, 18, 16, 0.12);
+        border-radius: 999px;
+      }
+
+      .vtimeline-inner::-webkit-scrollbar-thumb:hover {
+        background: rgba(22, 18, 16, 0.2);
       }
 
       .vtimeline-inner::before {
@@ -745,7 +873,69 @@
         display: flex;
         flex-direction: column;
         gap: 0;
-        padding: 120px 0;
+        padding: 0;
+      }
+
+      .vtimeline.vt-grid .vt-startcap,
+      .vtimeline.vt-grid .vt-endcap {
+        display: none;
+      }
+
+      .vtimeline.vt-grid .vt-connector {
+        display: none !important;
+      }
+
+      .vtimeline.vt-grid .vt-items {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 420px));
+        gap: 18px;
+        justify-content: center;
+      }
+
+      .vtimeline.vt-grid .vt-item {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-bottom: 0;
+        align-items: center;
+      }
+
+      .vtimeline.vt-grid .vt-card-wrapper {
+        justify-content: center;
+        order: 0;
+        width: 100%;
+      }
+
+      .vtimeline.vt-grid .vt-meta-wrapper {
+        padding: 0;
+        align-items: center;
+        text-align: center;
+        order: 1;
+      }
+
+      .vtimeline.vt-grid .vt-time {
+        display: none;
+      }
+
+      .vtimeline.vt-grid .vt-card {
+        width: 100%;
+        display: block;
+      }
+
+      .vtimeline.vt-grid .vt-card .frame {
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+        overflow: hidden;
+        box-shadow:
+          0 10px 25px color-mix(in srgb, var(--accent) 20%, transparent),
+          0 5px 12px rgba(0, 0, 0, 0.04);
+      }
+
+      .vtimeline.vt-grid .vt-card:hover .frame {
+        box-shadow:
+          0 12px 30px color-mix(in srgb, var(--accent) 30%, transparent),
+          0 8px 18px rgba(0, 0, 0, 0.05);
       }
 
       .vt-item {
@@ -754,6 +944,10 @@
         grid-template-columns: 1fr 1fr;
         position: relative;
         padding-bottom: 80px; /* Space for connector */
+      }
+
+      .vt-item[hidden] {
+        display: none !important;
       }
       
       .vt-item:last-child {
@@ -846,23 +1040,21 @@
       
       /* Start Cap */
       .vt-startcap {
-        position: absolute;
-        top: 0;
-        left: 25%;
+        position: relative;
+        margin-left: 25%;
         transform: translateX(-50%);
         text-align: center;
-        padding-bottom: 10px;
+        padding-bottom: 0;
         z-index: 2;
       }
 
       /* End Cap */
       .vt-endcap {
-        position: absolute;
-        bottom: 0;
-        left: 75%; /* Depends on last item */
+        position: relative;
+        margin-left: 75%;
         transform: translateX(-50%);
         text-align: center;
-        padding-top: 10px;
+        padding-top: 0;
         z-index: 2;
       }
 
@@ -986,11 +1178,11 @@
           display: none;
         }
         .vt-startcap, .vt-endcap {
-          left: 20px;
+          margin-left: 20px;
           transform: translateX(-50%);
         }
-        .vt-startcap { top: 0; }
-        .vt-endcap { bottom: 0; }
+        .vt-startcap { }
+        .vt-endcap { }
         
         .vt-card-wrapper {
           justify-content: flex-start;
@@ -1008,6 +1200,15 @@
 
         .vt-card .frame::before {
           border-radius: 26px;
+        }
+
+        .vtimeline.vt-grid .vt-items {
+          grid-template-columns: 1fr;
+        }
+
+        .vtimeline.vt-grid .vt-card-wrapper,
+        .vtimeline.vt-grid .vt-meta-wrapper {
+          padding-left: 0;
         }
       }
 
@@ -1725,6 +1926,10 @@
         --spotlight-size: 400px;
       }
 
+      .vtimeline[data-spotlight]::after {
+        display: none;
+      }
+
       .row {
         display: flex;
         flex-wrap: wrap;
@@ -2062,7 +2267,7 @@
       </header>
 
       <section class="cover" id="top">
-        <div class="cover-inner">
+        <div class="cover-inner cover-intro" data-cover-intro>
           <p class="cover-sub">你好，我是</p>
           <h1 class="cover-name">YUN</h1>
         </div>
@@ -2101,20 +2306,21 @@
       </section>
 
       <section class="section reveal" id="projects" data-reveal>
-        <h2> </h2>
         <h2>项目经历</h2>
         <p class="desc">按时间顺序整理的主要项目，欢迎参观我的成长历程：</p>
+        <p class="desc"> </p>
 
-        <div class="vtimeline" data-spotlight aria-label="项目时间轴">
-          <div class="vt-glass-bg" aria-hidden="true"></div>
-          <div class="vtimeline-inner">
-            <div class="vt-startcap" aria-hidden="true" style="--accent: #a77a5a;">
-              <div class="vt-cap-dot"></div>
-              <div class="vt-cap-text">Start</div>
-              <div class="vt-start-line"></div>
-            </div>
+        <div class="projects-layout">
+          <div class="vtimeline" data-spotlight aria-label="项目时间轴">
+            <div class="vt-glass-bg" aria-hidden="true"></div>
+            <div class="vtimeline-inner">
+              <div class="vt-startcap" aria-hidden="true" style="--accent: #a77a5a;">
+                <div class="vt-cap-dot"></div>
+                <div class="vt-cap-text">Start</div>
+                <div class="vt-start-line"></div>
+              </div>
 
-            <div class="vt-items">
+              <div class="vt-items">
               <div class="vt-item left" style="--accent:#a77a5a; --next-accent:#7d6fc6;">
                 <div class="vt-card-wrapper">
                   <button
@@ -2242,12 +2448,20 @@
               </div>
             </div>
 
-            <div class="vt-endcap" aria-hidden="true" style="--accent: #3b78d8;">
-              <div class="vt-end-line"></div>
-              <div class="vt-cap-dot"></div>
-              <div class="vt-cap-text">And more</div>
+              <div class="vt-endcap" aria-hidden="true" style="--accent: #3b78d8;">
+                <div class="vt-end-line"></div>
+                <div class="vt-cap-dot"></div>
+                <div class="vt-cap-text">And more</div>
+              </div>
             </div>
           </div>
+
+          <aside class="projects-filters" aria-label="项目筛选">
+            <button class="chip filter-chip active" type="button" data-project-filter="all"><small>全部</small></button>
+            <button class="chip filter-chip" type="button" data-project-filter="service"><small>服务设计</small></button>
+            <button class="chip filter-chip" type="button" data-project-filter="product"><small>产品设计</small></button>
+            <button class="chip filter-chip" type="button" data-project-filter="interaction"><small>交互/技术</small></button>
+          </aside>
         </div>
       </section>
 
@@ -2307,6 +2521,19 @@
       const lerp = (a, b, t) => a + (b - a) * t;
       const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+      const coverIntro = document.querySelector("[data-cover-intro]");
+      let coverIntroStarted = false;
+      const startCoverIntro = () => {
+        if (!coverIntro || coverIntroStarted) return;
+        coverIntroStarted = true;
+        coverIntro.classList.add("is-animating");
+        window.setTimeout(() => {
+          coverIntro.classList.remove("cover-intro");
+          coverIntro.classList.remove("is-animating");
+        }, 2100);
+      };
+      if (coverIntro && reduceMotion) coverIntro.classList.remove("cover-intro");
+
       const pointer = { x: 0.5, y: 0.4, tx: 0.5, ty: 0.4 };
       const tickPointer = () => {
         pointer.x = lerp(pointer.x, pointer.tx, 0.085);
@@ -2338,6 +2565,7 @@
       window.addEventListener(
         "pointermove",
         (e) => {
+          if (!reduceMotion && e.pointerType === "mouse") startCoverIntro();
           const x = e.clientX / window.innerWidth;
           const y = e.clientY / window.innerHeight;
           pointer.tx = x;
@@ -3019,6 +3247,57 @@
           if (id) openOverlay(id, btn);
         });
       });
+
+      const projectCategory = {
+        p1: "service",
+        p2: "product",
+        p3: "product",
+        p4: "interaction",
+        p5: "interaction",
+        p6: "interaction",
+      };
+
+      const filterButtons = Array.from(document.querySelectorAll("[data-project-filter]"));
+      const timelineItems = Array.from(document.querySelectorAll(".vt-items .vt-item"));
+      const vtimeline = document.querySelector(".vtimeline");
+
+      const applyProjectFilter = (filter) => {
+        const isAll = filter === "all";
+        for (const item of timelineItems) {
+          const card = item.querySelector(".project-card[data-project]");
+          const id = card ? card.getAttribute("data-project") : null;
+          const cat = id ? projectCategory[id] : null;
+          item.hidden = !isAll && cat !== filter;
+        }
+        if (vtimeline) vtimeline.classList.toggle("vt-grid", !isAll);
+      };
+
+      const setActiveFilterButton = (activeFilter) => {
+        for (const btn of filterButtons) {
+          const f = btn.getAttribute("data-project-filter");
+          btn.classList.toggle("active", f === activeFilter);
+          btn.setAttribute("aria-pressed", String(f === activeFilter));
+        }
+      };
+
+      const selectFilter = (filter) => {
+        const f = filter || "all";
+        setActiveFilterButton(f);
+        applyProjectFilter(f);
+      };
+
+      for (const btn of filterButtons) {
+        btn.setAttribute("aria-pressed", btn.classList.contains("active") ? "true" : "false");
+        btn.addEventListener("click", (e) => {
+          e.preventDefault();
+          const f = btn.getAttribute("data-project-filter") || "all";
+          selectFilter(f);
+        });
+      }
+
+      const initialFilter =
+        filterButtons.find((b) => b.classList.contains("active"))?.getAttribute("data-project-filter") || "all";
+      selectFilter(initialFilter);
     </script>
 
     <script type="module">
