@@ -277,7 +277,7 @@
       }
 
       .leg-guide.is-open {
-        max-height: 560px;
+        max-height: var(--leg-guide-open-h, 560px);
         opacity: 1;
         transform: translateY(0);
       }
@@ -382,14 +382,29 @@
     <script type="module">
       const toggleBtn = document.getElementById('toggle-guide-btn');
       const guideContainer = document.getElementById('guide-image-container');
+      const guideImg = guideContainer ? guideContainer.querySelector('img') : null;
       
+      const updateGuideOpenHeight = () => {
+        if (!guideContainer) return;
+        if (!guideContainer.classList.contains('is-open')) return;
+        if (guideImg && !guideImg.complete) return;
+        const h = guideContainer.scrollHeight;
+        guideContainer.style.setProperty('--leg-guide-open-h', `${h}px`);
+      };
+
       toggleBtn.addEventListener('click', () => {
         const isOpen = guideContainer.classList.toggle('is-open');
         toggleBtn.classList.toggle('is-open', isOpen);
         toggleBtn.setAttribute('aria-expanded', String(isOpen));
         const label = toggleBtn.querySelector('.leg-toggle-text');
         if (label) label.textContent = isOpen ? '收起' : '展开';
+        if (isOpen) updateGuideOpenHeight();
       });
+
+      if (guideImg) {
+        guideImg.addEventListener('load', updateGuideOpenHeight, { passive: true });
+      }
+      window.addEventListener('resize', updateGuideOpenHeight, { passive: true });
 
       const droneCanvas = document.getElementById("leg-drone-canvas");
       const droneCtx = droneCanvas.getContext("2d", { alpha: false });
