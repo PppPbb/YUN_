@@ -963,62 +963,31 @@
         height: 80px;
         pointer-events: none;
         z-index: 0;
+        background: linear-gradient(
+          to bottom,
+          color-mix(in srgb, var(--accent) 88%, white) 0%,
+          color-mix(in srgb, color-mix(in srgb, var(--accent) 55%, var(--next-accent)) 78%, white) 50%,
+          color-mix(in srgb, var(--next-accent) 88%, white) 100%
+        );
+        filter: saturate(1.35) brightness(1.12);
+        opacity: 0.98;
+        -webkit-mask-repeat: no-repeat;
+        -webkit-mask-position: center;
+        -webkit-mask-size: 100% 100%;
+        mask-repeat: no-repeat;
+        mask-position: center;
+        mask-size: 100% 100%;
       }
 
-      /* Left -> Right Connector (Down-Right-Down) */
-      .vt-item.left .vt-connector::before {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 50%;
-        height: 50%;
-        border-left: 5px solid var(--accent);
-        border-bottom: 5px solid var(--accent);
-        border-bottom-left-radius: 30px;
-        box-sizing: border-box;
+      /* 一条连续路径承载渐变，避免两段边框在中点生硬换色。 */
+      .vt-item.left .vt-connector {
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80'%3E%3Cpath d='M2 0V18Q2 40 24 40H176Q198 40 198 62V80' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80'%3E%3Cpath d='M2 0V18Q2 40 24 40H176Q198 40 198 62V80' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
       }
 
-      .vt-item.left .vt-connector::after {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 50%;
-        width: 50%;
-        height: 50%;
-        border-right: 5px solid var(--next-accent);
-        border-top: 5px solid var(--next-accent);
-        border-top-right-radius: 30px;
-        margin-top: -5px; /* Overlap border */
-        box-sizing: border-box;
-      }
-
-      /* Right -> Left Connector (Down-Left-Down) */
-      .vt-item.right .vt-connector::before {
-        content: "";
-        position: absolute;
-        right: 0;
-        top: 0;
-        width: 50%;
-        height: 50%;
-        border-right: 5px solid var(--accent);
-        border-bottom: 5px solid var(--accent);
-        border-bottom-right-radius: 30px;
-        box-sizing: border-box;
-      }
-
-      .vt-item.right .vt-connector::after {
-        content: "";
-        position: absolute;
-        left: 0;
-        top: 50%;
-        width: 50%;
-        height: 50%;
-        border-left: 5px solid var(--next-accent);
-        border-top: 5px solid var(--next-accent);
-        border-top-left-radius: 30px;
-        margin-top: -5px;
-        box-sizing: border-box;
+      .vt-item.right .vt-connector {
+        -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80'%3E%3Cpath d='M198 0V18Q198 40 176 40H24Q2 40 2 62V80' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
+        mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 80'%3E%3Cpath d='M198 0V18Q198 40 176 40H24Q2 40 2 62V80' fill='none' stroke='white' stroke-width='5' stroke-linecap='round'/%3E%3C/svg%3E");
       }
       
       /* Start/End Lines */
@@ -2291,9 +2260,9 @@
             </div>
             <div class="mini" data-spotlight>
               <h3>目前正在做</h3>
-              <p>计算机图形学大作业 (＠_＠;)</p>
-              <p>“树语”——让自然开口说话的交互装置</p>
-              <p>复习考试 x    制作网页√</p>
+              <p>短学期Maya大作业 (＠_＠;)</p>
+              <p>自进化访谈助手的实验设计</p>
+              <p>看日出</p>
             </div>
           </div>
           <div class="about-decoration" aria-hidden="true">
@@ -2307,27 +2276,26 @@
 
       <section class="section reveal" id="projects" data-reveal>
         <h2>项目经历</h2>
-        <p class="desc">按时间顺序整理的主要项目，欢迎参观我的成长历程：</p>
+        <p class="desc">我的探索：</p>
         <p class="desc"> </p>
 
         <div class="projects-layout">
           <div class="vtimeline" data-spotlight aria-label="项目时间轴">
             <div class="vt-glass-bg" aria-hidden="true"></div>
             <div class="vtimeline-inner">
-              <div class="vt-startcap" aria-hidden="true" style="--accent: #a77a5a;">
+              <div class="vt-startcap" aria-hidden="true" style="--accent: #4f9a83;">
                 <div class="vt-cap-dot"></div>
-                <div class="vt-cap-text">Start</div>
                 <div class="vt-start-line"></div>
               </div>
 
               <div class="vt-items">
-              <div class="vt-item left" style="--accent:#a77a5a; --next-accent:#7d6fc6;">
+              <div class="vt-item left" style="--accent:#f29a6b; --next-accent:#f29a6b;">
                 <div class="vt-card-wrapper">
                   <button
                     class="vt-card project-card"
                     type="button"
                     data-project="p1"
-                    style="--accent:#a77a5a;"
+                    style="--accent:#f29a6b;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project1.png');" aria-hidden="true"></div>
@@ -2339,10 +2307,9 @@
                   <div class="vt-title">四方行舟———逆水寒水上快闪店</div>
                   <div class="vt-time">2025.4-2025.6</div>
                 </div>
-                <div class="vt-connector"></div>
               </div>
 
-              <div class="vt-item right" style="--accent:#7d6fc6; --next-accent:#ff9f43;">
+              <div class="vt-item right" style="--accent:#9b7cff; --next-accent:#f29a6b;">
                 <div class="vt-meta-wrapper">
                   <div class="vt-title">Toothtickler———儿童龋齿检测器</div>
                   <div class="vt-time">2025.6</div>
@@ -2352,7 +2319,7 @@
                     class="vt-card project-card"
                     type="button"
                     data-project="p2"
-                    style="--accent:#7d6fc6;"
+                    style="--accent:#9b7cff;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project2.png');" aria-hidden="true"></div>
@@ -2363,13 +2330,13 @@
                 <div class="vt-connector"></div>
               </div>
 
-              <div class="vt-item left" style="--accent:#ff9f43; --next-accent:#d06a86;">
+              <div class="vt-item left" style="--accent:#ffb347; --next-accent:#9b7cff;">
                 <div class="vt-card-wrapper">
                   <button
                     class="vt-card project-card"
                     type="button"
                     data-project="p3"
-                    style="--accent:#ff9f43;"
+                    style="--accent:#ffb347;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project3.png');" aria-hidden="true"></div>
@@ -2384,7 +2351,7 @@
                 <div class="vt-connector"></div>
               </div>
 
-              <div class="vt-item right" style="--accent:#d06a86; --next-accent:#c38b2e;">
+              <div class="vt-item right" style="--accent:#ff7ea8; --next-accent:#ffb347;">
                 <div class="vt-meta-wrapper">
                   <div class="vt-title">吾痛———帮助儿童表达疼痛</div>
                   <div class="vt-time">2025.6-2025.7</div>
@@ -2394,7 +2361,7 @@
                     class="vt-card project-card"
                     type="button"
                     data-project="p4"
-                    style="--accent:#d06a86;"
+                    style="--accent:#ff7ea8;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project4.png');" aria-hidden="true"></div>
@@ -2405,13 +2372,13 @@
                 <div class="vt-connector"></div>
               </div>
 
-              <div class="vt-item left" style="--accent:#c38b2e; --next-accent:#3b78d8;">
+              <div class="vt-item left" style="--accent:#f2b94b; --next-accent:#ff7ea8;">
                 <div class="vt-card-wrapper">
                   <button
                     class="vt-card project-card"
                     type="button"
                     data-project="p5"
-                    style="--accent:#c38b2e;"
+                    style="--accent:#f2b94b;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project5.png');" aria-hidden="true"></div>
@@ -2426,7 +2393,7 @@
                 <div class="vt-connector"></div>
               </div>
 
-              <div class="vt-item right" style="--accent:#3b78d8; --next-accent:#3b78d8;">
+              <div class="vt-item right" style="--accent:#5aa2ff; --next-accent:#f2b94b;">
                 <div class="vt-meta-wrapper">
                   <div class="vt-title">无人机集群手势控制</div>
                   <div class="vt-time">2025.10-2026.1</div>
@@ -2436,7 +2403,7 @@
                     class="vt-card project-card"
                     type="button"
                     data-project="p6"
-                    style="--accent:#3b78d8;"
+                    style="--accent:#5aa2ff;"
                   >
                     <div class="frame">
                       <div class="img has-image" style="--project-img: url('images/project6.png');" aria-hidden="true"></div>
@@ -2444,14 +2411,35 @@
                     </div>
                   </button>
                 </div>
-                <!-- Last item connector logic handled by CSS or none -->
+                <div class="vt-connector"></div>
+              </div>
+
+              <!-- 新项目：替换标题、时间、封面和文案即可 -->
+              <div class="vt-item left" style="--accent:#a06bff; --next-accent:#5aa2ff;">
+                <div class="vt-card-wrapper">
+                  <button
+                    class="vt-card project-card"
+                    type="button"
+                    data-project="p7"
+                    style="--accent:#a06bff;"
+                  >
+                    <div class="frame">
+                      <div class="img has-image" style="--project-img: url('images/project7-cover.png');" aria-hidden="true"></div>
+                      <div class="caption">咀嚼检测算法 / 交互</div>
+                    </div>
+                  </button>
+                </div>
+                <div class="vt-meta-wrapper">
+                  <div class="vt-title">ChewTune：基于可穿戴感知与音乐反馈的咀嚼习惯培养系统</div>
+                  <div class="vt-time">2026.04 – 2026.06</div>
+                </div>
+                <div class="vt-connector"></div>
               </div>
             </div>
 
-              <div class="vt-endcap" aria-hidden="true" style="--accent: #3b78d8;">
+              <div class="vt-endcap" aria-hidden="true" style="--accent: #a77a5a;">
                 <div class="vt-end-line"></div>
                 <div class="vt-cap-dot"></div>
-                <div class="vt-cap-text">And more</div>
               </div>
             </div>
           </div>
@@ -3098,6 +3086,32 @@
             },
           ],
         },
+        // 新项目模板：封面、简介、详情图片和视频均可在此替换
+        p7: {
+          title: "ChewTune：基于可穿戴感知与音乐反馈的咀嚼习惯培养系统",
+          heroImg: "images/project7-cover.png",
+          description: "ChewTune 关注日常进食过程中容易被忽视的身体行为。随着生活节奏加快，许多人在用餐时处于低注意状态，逐渐形成咀嚼过快、咀嚼不足或长期偏侧咀嚼等习惯。现有饮食健康工具更多聚焦于热量记录、营养分析或餐后反馈，而较少介入正在发生的进食过程。",
+          meta: [
+            { label: "标签", value: "Wearable Interaction / Human-Computer Interaction / Behavior Change / Interactive Health / Sensor-based Design" },
+            { label: "项目人数与个人职责", value: "3人 / 项目负责人，负责项目方向定义、用户需求分析、交互流程设计、硬件形态探索、咀嚼状态识别方案设计以及原型验证。参与从概念提出、系统架构搭建到交互原型实现的完整设计流程。" },
+            { label: "项目时间", value: "2026.04 – 2026.06" },
+          ],
+          sections: [
+            {
+              title: "项目概述",
+              text: "本项目探索一种结合可穿戴传感、行为识别与音乐化反馈的交互方式。系统通过耳挂式硬件采集进食过程中的运动信号，识别用户的咀嚼状态，并通过非打断式反馈帮助用户感知自身节奏，逐步建立更健康的咀嚼习惯。",
+              embedHtml:
+                '<iframe src="https://player.bilibili.com/player.html?bvid=BV1SbKA6rEau&p=1" scrolling="no" frameborder="0" allowfullscreen="true" referrerpolicy="no-referrer-when-downgrade"></iframe>',
+              video: "",
+              images: [
+                "images/project7/0.png",
+                "images/project7/1.png",
+                "images/project7/2.png",
+                "images/project7/3.png"
+              ],
+            },
+          ],
+        },
       };
 
       // 全屏覆盖式详情页
@@ -3286,16 +3300,20 @@
       });
 
       const projectCategory = {
-        p1: "service",
-        p2: "product",
-        p3: "product",
-        p4: "interaction",
-        p5: "interaction",
-        p6: "interaction",
+        p1: ["service"],
+        p2: ["product"],
+        p3: ["product"],
+        p4: ["interaction"],
+        p5: ["interaction"],
+        p6: ["interaction"],
+        p7: ["product", "interaction"],
       };
 
       const filterButtons = Array.from(document.querySelectorAll("[data-project-filter]"));
-      const timelineItems = Array.from(document.querySelectorAll(".vt-items .vt-item"));
+      const timelineItemsContainer = document.querySelector(".vt-items");
+      const timelineItems = Array.from(document.querySelectorAll(".vt-items .vt-item")).reverse();
+      // 项目时间轴按“新 → 旧”展示；同步调整 DOM 顺序，保证键盘浏览顺序一致。
+      if (timelineItemsContainer) timelineItemsContainer.append(...timelineItems);
       const vtimeline = document.querySelector(".vtimeline");
 
       const applyProjectFilter = (filter) => {
@@ -3303,8 +3321,8 @@
         for (const item of timelineItems) {
           const card = item.querySelector(".project-card[data-project]");
           const id = card ? card.getAttribute("data-project") : null;
-          const cat = id ? projectCategory[id] : null;
-          item.hidden = !isAll && cat !== filter;
+          const categories = id ? projectCategory[id] : null;
+          item.hidden = !isAll && !(categories && categories.includes(filter));
         }
         if (vtimeline) vtimeline.classList.toggle("vt-grid", !isAll);
       };
